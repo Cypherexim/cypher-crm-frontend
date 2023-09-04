@@ -1,0 +1,77 @@
+<div class="lead-container w-full h-full">
+    <div class="lead-bar surface-50 w-full flex align-items-center">
+        <app-leadbar [stage]="currentStage" (callBack)="onFilterLead($event)" [leadList]="leadList" class="w-full"></app-leadbar>
+    </div>
+
+    <div class="lead-main w-full px-4 relative">
+        <div class="container-box w-full h-full">
+            <div class="right-btns absolute">
+                <button (click)="refreshPage()" pButton pRipple class="p-button-danger mr-2 ">Refresh <i class="pi pi-refresh"></i></button>
+                <button [disabled]="true" *ngIf="currentStage=='invoice'" pButton pRipple class="addPi p-button-success mr-2 "><i class="fa-sharp fa-solid fa-plus mr-1"></i>Add PI</button>
+            </div>
+            <h1 class="w-full mb-0 flex justify-content-center align-items-center mb-2">{{(currentStage=='open'?'Today Follow-up':currentStage=='follow-up'? 'Next Follow-up': currentStage=='invoice'?'proforma':currentStage) | titlecase}} {{!titleCondition.includes(currentStage)?'Leads':'Invoices'}}</h1>
+  
+            <div class="table-container w-full" *ngIf="copyLeadList.length>0">
+                <table class="w-full relative">
+                    <thead class="sticky top-0 z-5">
+                        <th *ngIf="['invoice','tax','status'].includes(currentStage)" class="sticky left-0"></th>
+                        <th>S.no.</th>
+                        <th *ngFor="let item of tableHeads" class="text-center">{{item.label | titlecase}}</th>
+                        <th class="sticky right-0 text-center" *ngIf="!conditionalStages.includes(currentStage)">{{currentStage=='reject'? 'Restore': (currentStage=='invoice' || currentStage=='tax')? 'Actions': 'Edit'}}</th>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of copyLeadList;let i=index">
+                            <td *ngIf="['invoice','tax','status'].includes(currentStage)" class="sticky left-0"><i class="fa-solid fa-circle-info"></i></td>
+                            <td class="{{isFollowedUp(item)}}">{{i+1}}</td>
+                            <td class="{{isFollowedUp(item)}} text-start" [pTooltip]="['remarks','source'].includes(item2.key)?item[item2.key]:''" tooltipPosition="bottom" *ngFor="let item2 of tableHeads">
+                                <div class="flex align-items-center {{isFollowedUp(item)}}">
+                                    <i *ngIf="followupCond(item2)" [style]="{'visibility': item?.followup_tracker==''?'hidden':'visible'}" class="pi pi-info-circle" (click)="showDialog(item?.followup_tracker)"></i>
+                                    {{ setTableValues(item, item2.key) }}
+                                </div>
+                            </td>
+                            <td class="{{isFollowedUp(item)}} sticky right-0 text-center" *ngIf="!conditionalStages.includes(currentStage)">
+                                <i *ngIf="currentStage=='reject'" class="fa-solid fa-reply-all" title="Restore to Open lead" (click)="showDialog2(item)"></i>
+                                <i *ngIf="currentStage=='tax'" class="fa-solid fa-pen-to-square ml-2" (click)="openInvoiceModal(item)" title="Update Status"></i>
+                                <i *ngIf="currentStage=='invoice'" (click)="openInvoiceModal(item)" title="Lead Invoice" class="fa-solid fa-file-invoice"></i>
+                                <i *ngIf="currentStage!='reject'" (click)="openEditModal(item)" title="Edit Lead" class="fa-solid fa-user-pen"></i>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="spinner w-full" *ngIf="copyLeadList.length==0">
+                <div *ngIf="isApiInProcess" class="spinner-icon flex flex-column justify-content-center align-items-center">
+                    <i class="pi pi-spin pi-spinner mb-2"></i>
+                    <span>Loading...</span>
+                </div>
+                <div *ngIf="!isApiInProcess" class="empty-data flex justify-content-center align-items-center">No Data Available</div>
+            </div>
+        </div>
+
+        <p-dialog [(visible)]="visibleDialogue" [modal]="true" [maximizable]="false" [draggable]="false" [resizable]="false" [style]="{width: '40vw', height: '50vh'}">
+            <ng-template pTemplate="header"><span class="text-xl font-bold text-center w-full">Last Follow-ups</span></ng-template>
+            <div class="w-full h-full">
+                <table class="w-full">
+                    <thead><th>Date</th> <th>Remark</th></thead>
+                    <tbody>
+                        <tr *ngFor="let item of followUpHistory">
+                            <td>{{item?.date|date:'MMM d, y, h:mm:ss a'}}</td>
+                            <td>{{item?.remark}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </p-dialog>
+
+        <p-dialog id="dialog2" [(visible)]="visibleDialogue2" [modal]="true" [maximizable]="false" [draggable]="false" [resizable]="false" [style]="{width: '30vw', height: '20vh'}">
+            <div class="content">
+                <p class="text-center">Are you sure to restore targeted lead?</p>
+                <div class="btns flex justify-content-center align-items-center">
+                    <button pButton pRipple [label]="isButtonClicked ?'Restoring...' : 'Restore'" class="p-button-success mr-2" (click)="restoreLeadToOpen()"></button>
+                    <button pButton pRipple label="Cancel" (click)="visibleDialogue2=false" class="p-button-danger"></button>
+                </div>
+            </div>
+        </p-dialog>
+    </div>
+</div>

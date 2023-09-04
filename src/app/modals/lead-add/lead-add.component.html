@@ -1,0 +1,62 @@
+<div class="lead-add-container w-full h-full flex justify-content-center align-items-center">
+    <div class="form-container w-9">
+        <h3 class="text-center">Add Lead</h3>
+
+        <div class="form-box px-2 flex flex-column h-10 overflow-auto">
+            <span class="p-float-label">
+                <input class="w-full" [(ngModel)]="addLeadValues.username" type="text" id="username" pInputText />
+                <label htmlFor="username">Username <span class="impInp">*</span></label>
+            </span>
+            <span class="p-float-label">
+                <input class="w-full" [(ngModel)]="addLeadValues.designation" type="text" id="Designation" pInputText />
+                <label htmlFor="Designation">Designation <span class="impInp">*</span></label>
+            </span>
+            <span class="p-float-label">
+                <input class="w-full" [(ngModel)]="addLeadValues.department" type="text" id="Department" pInputText />
+                <label htmlFor="Department">Department <span class="impInp">*</span></label>
+            </span>
+            <span class="p-float-label">
+                <input class="w-full" [(ngModel)]="addLeadValues.company" type="text" id="Comapany" pInputText />
+                <label htmlFor="Comapany">Company <span class="impInp">*</span></label>
+            </span>
+            <span class="p-float-label">
+                <input class="w-full" [(ngModel)]="addLeadValues.address" type="text" id="Address" pInputText />
+                <label htmlFor="Address">Address <span class="impInp">*</span></label>
+            </span>
+            <span class="p-float-label">
+                <input class="w-full" [(ngModel)]="addLeadValues.location" type="text" id="Location" pInputText />
+                <label htmlFor="Location">Location <span class="impInp">*</span></label>
+            </span>
+            <span class="p-float-label">
+                <input class="w-full" [(ngModel)]="addLeadValues.email" type="email" id="Email" pInputText />
+                <label htmlFor="Email">Email <span class="impInp">*</span></label>
+            </span>
+            <span class="p-float-label">
+                <input class="w-full" [(ngModel)]="addLeadValues.contact" type="text" id="Contact" pInputText />
+                <label htmlFor="Contact">Contact <span class="impInp">*</span></label>
+            </span>
+            <span class="p-float-label">
+                <input class="w-full" [(ngModel)]="addLeadValues.gst" type="text" id="GST" pInputText />
+                <label htmlFor="GST">GST Number <span class="impInp">*</span></label>
+            </span>
+            <span class="p-float-label">
+                <input class="w-full" [(ngModel)]="addLeadValues.pan" type="text" id="PAN" pInputText />
+                <label htmlFor="PAN">PAN Number <span class="impInp">*</span></label>
+            </span>
+            <span class="p-float-label">
+                <input class="w-full" [(ngModel)]="addLeadValues.iec" type="text" id="IEC" pInputText />
+                <label htmlFor="IEC">IEC Number</label>
+            </span>
+            <span class="p-float-label">
+                <textarea  rows="5" class="w-full" [(ngModel)]="addLeadValues.remark" pInputTextarea></textarea>
+                <label for="float-input">Source <span class="impInp">*</span></label>
+            </span>
+        </div>
+
+        <div class="submit-btn text-center">
+            <button pButton pRipple label="{{isBtnClicked ?'Submitting...':'Submit'}}" (click)="onSubmit()" class="p-button-success mr-2 "></button>
+            <button pButton pRipple label="Cancel" (click)="onDismissModal()" class="p-button-danger"></button>
+        </div>
+    </div>
+</div>
+  

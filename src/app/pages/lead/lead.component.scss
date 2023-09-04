@@ -1,0 +1,125 @@
+div.lead-container{
+    div.lead-bar{
+        height: 10%;
+        border-bottom: 1px dotted #c2c2c2;
+    }
+    div.lead-main{
+        height: 90%;
+        div.container-box{
+            div.right-btns {
+                top: 1.5%;
+                button{
+                    padding: 5px 15px;
+                    letter-spacing: 0.5px;
+                    font-size: 15px;
+    
+                    i{
+                        color: white;
+                        font-size: 13px;
+                        margin-left: 5px;
+                    }
+                }
+            }
+            h1{font-weight: 400;height: 7.5%;}
+            div.table-container{
+                height: 90%;
+                overflow: auto;
+                table{
+                    border-left: 1px solid darkgray;
+                    caption-side: bottom;
+                    border-collapse: collapse;
+                    thead{   
+                        th{
+                            padding: 5px 15px;
+                            white-space: nowrap;
+                            font-size: 17px;
+                            color: white; 
+                            font-weight: 500;
+                            letter-spacing: 0.3px;
+                            border-left: 1px solid white;
+                            border-right: 1px solid white;
+                            background-color: var(--official-color);
+                            &:first-child{border-left: 1px solid darkgray;}
+                            &:last-child{border-right: 1px solid darkgray;}
+                        }
+                    }
+    
+                    tbody{
+                        tr{
+                            &:hover{td,td.followed-up{
+                                background-color: whitesmoke;
+                                div.followed-up i.pi-info-circle{opacity: 1;}
+                            }}
+                            td{
+                                background-color: white;
+                                font-size: 14.5px;
+                                padding: 5px 20px;
+                                text-align: center;
+                                white-space: nowrap;
+                                border-left: 1px solid darkgray;
+                                border-right: 1px solid darkgray;
+                                border-bottom: 1px solid darkgray;
+                                i{
+                                    cursor: pointer;
+                                    font-size: 18px;
+                                    color: var(--primary);
+                                    transition: all 0.15s ease-in-out;
+                                    &:hover{color: #ef4444;transform: scale(1.2);}
+                                }
+                                i.pi-info-circle{
+                                    font-weight: bold;
+                                    margin-right: 10px;
+                                    &:hover{color: var(--success);}
+                                }
+                                
+                                i.fa-reply-all,
+                                i.fa-user-pen{&:hover{transform: scale(1.2);}}
+                                i.fa-file-invoice{margin-right: 10px;}
+                                i.fa-pen-to-square{margin-right: 10px;}
+
+                                &.followed-up{
+                                    background-color: #ffdede;                                    
+                                    div.followed-up i.pi-info-circle{opacity: 0;transition: all 0.2s ease-in-out;}
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    p-dialog{
+        table{
+            thead{
+                background-color: var(--slate);
+                th{padding: 5px 10px;}
+                th{border: 1px solid #c2c2c2;color: white;}
+            }
+            tr{
+                td:first-child{white-space: nowrap;}
+                td{
+                    border: 1px solid #c2c2c2;
+                    padding: 5px 10px;
+                }
+            }
+        }
+        
+        div.content{
+            p{
+                font-size: 22px;
+                font-weight: 400;
+                font-family: 'Roboto';
+                margin-top: 10%;
+                margin-bottom: 5%;
+            }
+            div.btns{
+                button{
+                    padding: 5px 20px;
+                    letter-spacing: 0.8px;
+                }
+            }
+        }
+    }
+}
+

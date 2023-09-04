@@ -1,0 +1,56 @@
+create table crm_openleads(
+	id serial primary key not null,
+    company_name varchar(500),
+	name varchar(100),
+	designation varchar(150),
+	department varchar(150),
+	address text,
+	contact text,
+	email text,
+	location varchar(100),
+	gst_num varchar(100),
+	pan_num varchar(100),
+	iec_num varchar(100),
+	remarks text,
+
+	last_followup timestamp, --null
+	next_followup timestamp, --null
+	assigned_from integer, --null
+	user_id integer,
+	current_stage varchar(100),
+	transaction_time timestamp,
+	lead_tracker text,	--will be active when assigning
+	followup_tracker text, --will be active when following up
+	active boolean
+);
+
+
+
+
+ALTER TABLE crm_openleads
+  DROP COLUMN phone_num;
+
+
+ALTER TABLE crm_openleads
+ADD COLUMN iec_num varchar(100);
+
+
+create table "crm_statusleads"(
+	id serial primary key not null,
+	lead_data text,
+	assigners varchar(200),
+	status varchar(100),
+	transaction_time timestamptz,
+	active boolean
+)
+
+
+truncate crm_openleads;
+truncate crm_closeleads;
+truncate crm_followupleads;
+truncate crm_demoleads;
+truncate crm_priceleads;
+truncate crm_rejectleads;
+truncate crm_statusleads;
+truncate crm_invoiceleads;
+truncate "crm_masterLeads";

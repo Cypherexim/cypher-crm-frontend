@@ -1,0 +1,42 @@
+div.header{
+    padding: 0 10px;
+    div.hero-img{
+        div.cypher{
+            img{
+                height: 40px;
+                margin-bottom: 3px;
+            }
+        }
+        div.crm{
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'Roboto';
+            color: #81da5b;
+            padding-bottom: 2px;
+            &::before{
+                content: "-";
+                margin: 0 2.5px;
+            }
+        }
+    }
+
+    div.side-options{
+        div.user-detail{
+            div.mr-5{
+                font-size: 14px;
+                span{font-size: 17px; font-weight: 500;margin-left: 3px;}
+            }
+
+            a{
+                color: black;
+                font-size: 15px;
+                cursor: pointer;
+                margin-right: 10px;
+                font-family: 'Roboto'; 
+                letter-spacing: 0.6px;
+                text-decoration: none;
+                &:hover{color: blue;text-decoration: underline;}      
+            }
+        }
+    }
+}

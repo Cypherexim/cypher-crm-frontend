@@ -1,0 +1,34 @@
+div.file-container{
+    div.center-box{
+        width: 70%;
+        div.input-field{
+            div.input-box{
+                width: 100%;
+                display: flex;
+                align-items: center;
+                border: 1px solid #c2c2c2;
+                padding: 13px 10px;
+                margin-bottom: 1rem;
+                cursor: pointer;
+
+                span{
+                    width: 95%;
+                    padding-left: 1rem;
+                    letter-spacing: 0.5px;
+                }
+            }
+            button{
+                padding: 5px 20px;
+                letter-spacing: 0.8px;
+            }
+
+        }
+
+        div.loading{
+            margin-top: 15%;
+            div.spinner-icon{
+                div{top: 23%;}
+            }
+        }
+    }
+}

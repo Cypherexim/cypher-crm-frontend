@@ -1,0 +1,28 @@
+div.login-container{
+    div.main-box{
+        div.login-panel{
+            width: 30%;
+            padding: 2rem 0rem 4rem;
+            h2{
+                font-weight: 300;
+                letter-spacing: 0.5px;
+            }
+            div.input-fields{
+                input, button{
+                    font-size: 16.5px;
+                    padding: 10px 30px;
+                    border-radius: 40px;
+                    outline: none;
+                    border: 1px solid #c2c2c2;
+                }
+
+                button{
+                    color: white;
+                    font-size: 18px;
+                    letter-spacing: 0.5px;
+                    background-color: var(--success);
+                }
+            }
+        }
+    }
+}

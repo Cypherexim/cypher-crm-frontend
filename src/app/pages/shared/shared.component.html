@@ -1,0 +1,15 @@
+<div class="shared-container h-screen w-full bg-white">
+    <header class="header-container h-1">
+        <app-header></app-header>
+    </header>
+
+    <div class="body-container flex w-full h-11">
+        <aside class="sidebar w-2 h-full">
+            <app-sidebar></app-sidebar>
+        </aside>
+        
+        <main class="main-body w-10 h-full">
+            <router-outlet></router-outlet>
+        </main>
+    </div>
+</div>

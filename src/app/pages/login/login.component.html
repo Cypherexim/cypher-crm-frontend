@@ -1,0 +1,15 @@
+<div class="login-container h-screen w-full">
+    <div class="header-bar h-1"><app-header></app-header></div>
+
+    <div class="main-box surface-900 h-11 w-full flex justify-content-center align-items-center">
+        <div class="login-panel surface-0">
+            <h2 class="text-center mb-3 pb-5">Login Here!</h2>
+            <div class="input-fields flex flex-column align-items-center">
+                <input [(ngModel)]="loginBody.username" class="w-10 mb-3 surface-0 shadow-2" placeholder="Username" type="email" />
+                <input [(ngModel)]="loginBody.password" class="w-10 mb-5 surface-0 shadow-2" placeholder="Password" type="password" />
+                <button class="active-shadow w-10 shadow-3" (click)="onLoginSubmit()">{{loginBtn | uppercase}}</button>
+            </div>
+        </div>
+    </div>
+</div>
+

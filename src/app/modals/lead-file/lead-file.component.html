@@ -1,0 +1,21 @@
+<div class="file-container w-full h-full flex justify-content-center align-items-center relative">
+    <div class="center-box">
+        <div class="input-field" *ngIf="!isApiInProcess">
+            <input type="file" (change)="onSelectFile($event)" [accept]="acceptExcelFormats" class="hidden" #fileInp />
+            <div class="input-box" (click)="openExcelFileInp(fileInp)"><span>{{fileName}}</span><i class="pi pi-caret-down"></i></div>
+            <div class="text-center w-full">
+                <button pButton pRipple label="Submit" class="p-button-success mr-2" (click)="onSubmit()"></button>
+                <button pButton pRipple label="Cancel" class="p-button-danger" (click)="onDismissModal()"></button>
+            </div>
+        </div>
+
+        <div class="spinner loading" *ngIf="isApiInProcess">
+            <div class="spinner-icon flex flex-column justify-content-center align-items-center">
+                <i class="pi pi-spin pi-spinner mb-2 hidden"></i>
+                <div class="w-5 absolute"><img class="w-full h-full" src="assets/images/cloud-uploading.gif" alt=""></div>
+                <span>Uploading...</span>
+            </div>
+        </div>
+    </div>
+</div>
+

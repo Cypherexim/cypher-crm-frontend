@@ -1,0 +1,148 @@
+div.lead-edit-container{
+    padding: 2.5% 0px;
+
+    i.pi-times{
+        font-size: 20px;
+        cursor: pointer;
+        top: 10px;
+        right: 10px;
+    }
+    section.upper{
+        border-right: 1px solid #e2e2e2;
+        h3{
+            font-size: 25px;
+            padding: 1.5rem 0px 1rem;
+            i{
+                font-size: 20px;
+                top: 50%;
+                right: 12%;
+                cursor: pointer;
+                &:hover{color: red;}
+            }
+        }
+
+        div.input-data{
+            padding: 0 10%;
+            div.input-field{
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 1rem;
+
+                span{
+                    font-size: 14px;
+                    font-weight: 500;
+                    letter-spacing: 0.5px;
+                    margin-bottom: 5px;
+                }
+                input{
+                    font-size: 15px;
+                    padding: 7px 10px;
+                }
+                textarea{font-size: 15px;}
+            }
+
+            div.submitBtn button{
+                padding: 5px 20px;
+                letter-spacing: 0.8px;
+            }
+        }
+
+        div.lead-description{
+            padding: 0 8%;
+            div.see-less-option, div.see-more-option{
+                cursor: pointer;
+                width: fit-content;
+                font-size: 13.5px;
+                font-weight: 500;
+                color: var(--danger);
+                &:hover{color: var(--primary);}
+                span{margin-right: 0.25rem;}
+            }
+            div.data-item{
+                padding: 10px 0;
+                div.label{
+                    font-size: 17.5px;
+                    font-weight: 500;
+                    letter-spacing: 0.75px;
+                    &::after{
+                        content: ":";
+                        margin-left: 3.5px;
+                    }
+                }
+                div.value{
+                    font-size: 16.5px;
+                    letter-spacing: 0.4px;
+                    font-weight: 400;
+                    line-height: 22.5px;
+                    word-wrap: break-word;
+                    white-space: break-spaces;
+                }
+            }
+        }
+    }
+
+    section.below{
+        div.assign-container{
+            padding: 0 10%;
+
+            div.lead-status{
+                margin-bottom: 4rem;
+                
+                select{
+                    width: 80%;
+                    outline: none;
+                    padding: 5px 20px;
+                    margin-left: 2rem;
+                    border: 1px solid #c2c2c2;
+                }
+            }
+
+            div.generated-inputs{
+                border: 2px solid #cccccc;
+                border-radius: 15px;
+                padding: 15px;
+                padding-top: 1.8rem;
+
+                span.absolute{
+                    top: -4.5%;
+                    font-weight: 500;
+                    left: 5%;
+                    background: white;
+                    padding: 0 15px;
+                    font-size: 20px;
+                }
+
+                div.input-field{
+                    margin-bottom: 1.5rem;
+                    div.inp{
+                        input{
+                            width: 50%;
+                            outline: none;
+                            padding: 2px 20px;
+                            user-select: none;
+                            border: 1px solid #c2c2c2;
+                        }
+                        textarea{font-size: 15px;}
+                    }
+                    select{
+                        outline: none;
+                        padding: 5px 20px;
+                        border: 1px solid #c2c2c2;
+                    }
+                    input[type='text'] {padding: 10px 15px;}
+                }
+                button{
+                    padding: 5px 20px;
+                    letter-spacing: 0.8px;
+                }
+            }
+        }
+    }
+}
+
+span.label{
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+}

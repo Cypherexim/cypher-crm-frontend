@@ -1,0 +1,24 @@
+div.admin-container{
+    div.grid{
+        div.col-12 h1{
+            font-size: 40px;
+            font-weight: 400;
+            color: #000000c7;
+        }
+        div.col-4{
+            div.option-tab{
+                user-select: none;
+                border: 1px solid #dcdcdc;
+                padding: 2.5rem 0;
+                border-radius: 15px;
+                cursor: pointer;
+                div.option{font-size: 20px;}
+                i{
+                    font-size: 30px;
+                    margin-right: 15px;
+                    color: var(--official-color);
+                }
+            }
+        }
+    }
+}
