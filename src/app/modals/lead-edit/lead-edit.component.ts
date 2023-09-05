@@ -185,10 +185,16 @@ export class LeadEditComponent implements OnDestroy, OnInit{
     this.excelModelVal.followupTracker = JSON.stringify(parsedObj);
 
     const apiBody = {...this.excelModelVal, id: this.leadData.id};
-  
+
     if(this.areDatesSame(this.excelModelVal.nextFollow)) {
+      debugger
       this.apiSubscription2 = this.apiService.updateFollowupLeadAPI(apiBody, "Open").subscribe({
-        next: (res:any) => {},
+        next: (res:any) => {
+          this.isSubmitClicked = false;
+          this.callback.emit({msg: res?.msg, isMsg: true});
+          this.onDismissModal();
+          this.utility.showToastMsg("success", "SUCCESS", `Follow-up Lead Added successfully!`);
+        },
         error: (err:any) => console.log(err)
       });
     } else {
@@ -196,7 +202,7 @@ export class LeadEditComponent implements OnDestroy, OnInit{
         next: (res:any) => {
           if(!res.error) {
             this.deleteAnyTypeLead();
-            this.utility.showToastMsg("success", "SUCCESS", `Follow-up Lead Added successfully!`)
+            this.utility.showToastMsg("success", "SUCCESS", `Follow-up Lead Added successfully!`);
           }
         },
         error: (err:any) => {console.log(err);}
@@ -356,7 +362,7 @@ export class LeadEditComponent implements OnDestroy, OnInit{
     const lastDate = new Date(givenDate.split(" ")[0]);
     const todayDate = new Date();
 
-    const isDaySame = lastDate.getDay() == todayDate.getDay();
+    const isDaySame = lastDate.getDate() == todayDate.getDate();
     const isMonthSame = lastDate.getMonth() == todayDate.getMonth();
     const isYearSame = lastDate.getFullYear() == todayDate.getFullYear();
 
