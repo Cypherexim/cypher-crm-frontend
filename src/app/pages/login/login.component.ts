@@ -83,7 +83,6 @@ export class LoginComponent implements OnInit{
   }
 
   async deleteFollowupLead(bodyObj:any) {
-    console.log(bodyObj)
      this.apiService.deleteFollowupLeadAPI(bodyObj).subscribe({
       next: (res:any) => {
         if(!res?.error) console.log("Deleted successfully!");

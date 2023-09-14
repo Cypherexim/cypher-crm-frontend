@@ -32,6 +32,9 @@ export class LeadModel {
     leadKeys:any = {
         openLeadKey: [
             { label: "source", key: "source" },
+            { label: "remark", key: "remarks" },
+            { label: "last followup", key: "last_followup" },
+            { label: "next followup", key: "next_followup" },
             ...this.commonKeys,
             { label: "time", key: "transaction_time" }
         ],

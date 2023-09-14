@@ -25,7 +25,7 @@
                             <td class="{{isFollowedUp(item)}}">{{i+1}}</td>
                             <td class="{{isFollowedUp(item)}} text-start" [pTooltip]="['remarks','source'].includes(item2.key)?item[item2.key]:''" tooltipPosition="bottom" *ngFor="let item2 of tableHeads">
                                 <div class="flex align-items-center {{isFollowedUp(item)}}">
-                                    <i *ngIf="followupCond(item2)" [style]="{'visibility': item?.followup_tracker==''?'hidden':'visible'}" class="pi pi-info-circle" (click)="showDialog(item?.followup_tracker)"></i>
+                                    <i *ngIf="followupCond(item2)" [style]="{'visibility': errorTypes.includes(item?.followup_tracker)?'hidden':'visible'}" class="pi pi-info-circle" (click)="showDialog(item?.followup_tracker)"></i>
                                     {{ setTableValues(item, item2.key) }}
                                 </div>
                             </td>

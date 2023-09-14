@@ -56,6 +56,7 @@ export class LeadComponent implements OnInit, OnDestroy {
   
   conditionalStages:string[] = ["status"];
   titleCondition:string[] = ["tax", "invoice"];
+  errorTypes:any[] = ["", "null", null, "undefined", undefined];
 
 
   urlDetectionEvent() {
@@ -153,7 +154,7 @@ export class LeadComponent implements OnInit, OnDestroy {
   setTableValues(data:any, key:string) {
     const dateKeys = ["last_followup", "next_followup", "transaction_time", "demo_time", "invoice_date"];
 
-    if(["", "null", null].includes(data[key])) return "N/A";
+    if(this.errorTypes.includes(data[key])) return "N/A";
     else if(dateKeys.includes(key)) return this.datepipe.transform(data[key], key=="invoice_date"?"MMM d, y":"MMM d, y, h:mm:ss a");
     else if(["email", "contact", "address"].includes(key)) {
       const modifiedStr = (<string>data[key]).replace(new RegExp(",", "g"), ", ");
@@ -248,15 +249,16 @@ export class LeadComponent implements OnInit, OnDestroy {
   }
 
   isFollowedUp(item:any):string {
-    if(this.currentStage=="open") {
-      const hasFollowupData = item["followup_tracker"];
-      const hasRemark = item["remarks"];
-      return (hasFollowupData!="" && hasRemark!="")?"followed-up":"";
-    } else return "";
+    // if(this.currentStage=="open") {
+    //   const hasFollowupData = item["followup_tracker"];
+    //   const hasRemark = item["remarks"];
+    //   return (hasFollowupData!="" && hasRemark!="")?"followed-up":"";
+    // } else return "";
+    return "";
   }
 
   followupCond(item:any):boolean {
-    return item.key=='last_followup' || (item.key=='email' && this.currentStage=="open");
+    return item.key=='last_followup'; //(item.key=='email' && this.currentStage=="open");
   }
 
   onFilterLead(e:any) {this.copyLeadList = e;}

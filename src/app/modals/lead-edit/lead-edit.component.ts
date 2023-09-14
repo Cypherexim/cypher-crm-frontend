@@ -292,7 +292,7 @@ export class LeadEditComponent implements OnDestroy, OnInit{
 
 
   deleteAnyTypeLead() {
-    const leadType = this.titlecasepipe.transform(this.currentLeadPage.replace(" ", ""));
+    const leadType = this.titlecasepipe.transform(this.currentLeadPage.replace(" ", "").replace("-", ""));
     this.apiSubscription3 = this.apiService.allDeleteAPIs(this.leadData.id, this.leadData.user_id, leadType).subscribe({
       next: (res:any) => {
         if(!res.error) {
