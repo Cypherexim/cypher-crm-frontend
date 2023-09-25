@@ -12,7 +12,7 @@ div.lead-add-container{
                     color: red;
                     margin-left: 2.5px;
                 }
-                label{}
+                label{}                
                 p{
                     font-size: 12px;
                     margin-left: 5px;
@@ -20,6 +20,22 @@ div.lead-add-container{
                     letter-spacing: 0.4px;
                 }
                 textarea{resize: none;}
+                select{
+                    width: 100%;
+                    padding: 10px 5px;
+                    border-radius: 5px;
+                    outline-color: #609af8;
+                    border: 1px solid #c2c2c2;
+                    &:hover{border-color: #3B82F6;}
+                }
+            }
+            div.reference-box{
+                border: 2px solid #dcdcdc;
+                padding: 2.5%;
+                border-radius: 10px;
+                margin-bottom: 2rem;
+
+                span:last-child{margin-bottom: 0;}
             }
         }
 

@@ -51,15 +51,15 @@ export class CsvParserService {
       if (curruntRecord.length == headerLength) {
         const csvRecord: CSVModel = new CSVModel();
 
-        csvRecord.username = curruntRecord[0].trim();
+        csvRecord.username = curruntRecord[0].trim().toLowerCase();
         csvRecord.company = curruntRecord[1].trim();
         csvRecord.designation = curruntRecord[2].trim();
         csvRecord.department = curruntRecord[3].trim();
         csvRecord.address = curruntRecord[4].trim().replace(new RegExp("_ ", "g"), "_").split("_").toLocaleString();
         csvRecord.location = curruntRecord[5].trim();
         csvRecord.contact = curruntRecord[6].trim().replace(new RegExp("_ ", "g"), "_").split("_").toLocaleString();
-        csvRecord.email = curruntRecord[7].trim().replace(new RegExp("_ ", "g"), "_").split("_").toLocaleString();
-        csvRecord.remark = curruntRecord[8].trim(); //here it is source
+        csvRecord.email = curruntRecord[7].trim().replace(new RegExp("_ ", "g"), "_").split("_").toLocaleString().toLowerCase();
+        csvRecord.source = curruntRecord[8].trim();
         csvRecord.gst = curruntRecord[9].trim();
         csvRecord.pan = curruntRecord[10].trim();
         csvRecord.iec = curruntRecord[11].trim();

@@ -35,10 +35,10 @@ export class LeadbarComponent implements OnInit, OnDestroy {
   searchPlaceholder:string = "Search email, company, contact etc";
   acceptExcelFormats:string = ".csv";//, .xls, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
   stages:any[] = [
-    {id: "open", optionName: "open", isDisable: false},
-    {id: "close", optionName: "close", isDisable: false},
+    {id: "open", optionName: "Today Followup", isDisable: false},
+    {id: "follow-up", optionName: "Next Followup", isDisable: false},
     {id: "reject", optionName: "reject", isDisable: false},
-    {id: "follow-up", optionName: "follow up", isDisable: false},
+    {id: "close", optionName: "close", isDisable: false},
     {id: "status", optionName: "lead status", isDisable: false}
   ];
   existingEmails:string[] = [];

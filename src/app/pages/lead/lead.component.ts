@@ -46,6 +46,7 @@ export class LeadComponent implements OnInit, OnDestroy {
   isButtonClicked:boolean = false;
   taxNum:string = "";
   piNum:number = 0;
+  tdModalType:string = "last_followup";
   
   leadList:any[] = [];
   copyLeadList:any[] = [];
@@ -56,7 +57,13 @@ export class LeadComponent implements OnInit, OnDestroy {
   
   conditionalStages:string[] = ["status"];
   titleCondition:string[] = ["tax", "invoice"];
+  sourceList:string[] = ["database", "linkedin", "exhibition", "reference", "website", "online lead"];
   errorTypes:any[] = ["", "null", null, "undefined", undefined];
+  popupTitles:any = {
+    last_followup: "Last Follow-ups",
+    contact: "Contact List",
+    email: "Email List"
+  };
 
 
   urlDetectionEvent() {
@@ -155,16 +162,24 @@ export class LeadComponent implements OnInit, OnDestroy {
     const dateKeys = ["last_followup", "next_followup", "transaction_time", "demo_time", "invoice_date"];
 
     if(this.errorTypes.includes(data[key])) return "N/A";
-    else if(dateKeys.includes(key)) return this.datepipe.transform(data[key], key=="invoice_date"?"MMM d, y":"MMM d, y, h:mm:ss a");
+    else if(dateKeys.includes(key)) {
+      const dateTime = (data[key]).replace(new RegExp("NaN", "g"), "00");
+      return this.datepipe.transform(dateTime, key=="invoice_date"?"MMM d, y":"MMM d, y, h:mm:ss a");
+    }
     else if(["email", "contact", "address"].includes(key)) {
       const modifiedStr = (<string>data[key]).replace(new RegExp(",", "g"), ", ");
-      if(["email", "contact"].includes(key)) return this.titlecasepipe.transform(modifiedStr.split(",")[0]); 
+      if(["email", "contact"].includes(key)) return this.toTitleCase(this.titlecasepipe.transform(modifiedStr.split(",")[0]));
       return this.titlecasepipe.transform(modifiedStr);
-    } else if(key == "remarks") return this.ellipsespipe.transform(data[key], 100);
+    } else if(key == "remarks") return this.ellipsespipe.transform(data[key], 35);
+    else if(key == "assigned_from") return this.toTitleCase(this.utility.fetchUserSingleDetail("id")==data["assigend_from_id"] ? "self" : data[key]);
     else return data[key]=="N/A" ? data[key] : this.titlecasepipe.transform(`${data[key]}`);
   }
 
-  refreshPage() { this.getAllOpenLeads(this.currentStage); }
+  refreshPage() {
+    const selectTag = document.getElementById("sourceId") as HTMLSelectElement;
+    if(selectTag) selectTag.value = "";
+    this.getAllOpenLeads(this.currentStage);
+  }
 
   openEditModal(itemData:any) {
     const modalRef = this.modalService.open(LeadEditComponent, { windowClass: 'leadEditModalCss' });
@@ -215,11 +230,14 @@ export class LeadComponent implements OnInit, OnDestroy {
     }});
   }
 
-  showDialog(followups:string) {
-    if(followups!='') {
-      this.followUpHistory = JSON.parse(followups);
-      this.visibleDialogue = true;
+  showDialog(itemVal:string, colType:string) {
+    if(colType=="last_followup" && itemVal!="") {
+      this.followUpHistory = JSON.parse(itemVal);
+    } else if(["contact","email"].includes(colType)) {
+      this.followUpHistory = itemVal.split(",");
     }
+    this.tdModalType = colType;
+    this.visibleDialogue = true;
   }
 
   showDialog2(itemData:any) {
@@ -228,7 +246,7 @@ export class LeadComponent implements OnInit, OnDestroy {
   }
 
   restoreLeadToOpen() {
-    this.excelModelVal = this.utility.setValuesForOpenLead(this.excelModelVal, this.leadData);
+    this.excelModelVal = this.utility.setValuesForOpenLead(this.excelModelVal, this.leadData, "lead");
     this.isButtonClicked = true;
     this.apiService.revertToOpenLeadAPI(this.excelModelVal).subscribe({
       next: (res:any) => {
@@ -257,13 +275,28 @@ export class LeadComponent implements OnInit, OnDestroy {
     return "";
   }
 
-  followupCond(item:any):boolean {
-    return item.key=='last_followup'; //(item.key=='email' && this.currentStage=="open");
-  }
+  // followupCond(item:any):boolean {
+  //   return item.key=="last_followup"; //(item.key=='email' && this.currentStage=="open");
+  // }
 
   onFilterLead(e:any) {this.copyLeadList = e;}
 
-  getMouseLocation = (e:any) => {
-    console.log(e);
+  onChangeSource(e:any) {
+    const value = e.target.value;
+    if(value == "") {this.copyLeadList = JSON.parse(JSON.stringify(this.leadList));}
+    else {this.copyLeadList = this.leadList.filter((item:any) => item["source"]==value);}
+  }
+
+  checkInfoAvailability(listStr:string):boolean {
+    return !this.errorTypes.includes(listStr) && listStr.split(",").length>1;
+  }
+
+  toTitleCase(str:string) {return str[0].toUpperCase() + str.substring(1, str.length);}
+  doesFollowupExist(followupStr:string|any):boolean {
+    if(this.errorTypes.includes(followupStr)) return false;
+    else {
+      debugger
+      return true;
+    }
   }
 }

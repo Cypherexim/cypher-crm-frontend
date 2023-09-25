@@ -14,7 +14,7 @@ export class ApiService {
   }
 
   getAllUsersAPI(id:number|string) {
-    return this.http.get(`${environment.apiurl}/user/getAllUsers?id=${id}`);
+    return this.http.get(`${environment.apiurl}/user/getAllUsers`);//?id=${id}
   }
 
   getInvoiceNumAPI() {

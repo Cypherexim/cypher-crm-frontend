@@ -19,6 +19,16 @@ div.lead-container{
                         margin-left: 5px;
                     }
                 }
+
+                select{
+                    padding: 5px;
+                    outline: none;
+                    color: #535353;
+                    text-align: center;
+                    border-radius: 5px;
+                    background: #f7f2f28f;
+                    border: 1px solid #c2c2c2;
+                }
             }
             h1{font-weight: 400;height: 7.5%;}
             div.table-container{

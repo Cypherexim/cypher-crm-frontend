@@ -118,3 +118,19 @@ p-dialog#dialog2{
     }
     .p-dialog .p-dialog-content{padding-bottom: 0;}
 }
+
+//*******************error**************
+div.error{
+    position: absolute;
+    margin-bottom: 1rem;
+    color: red;
+    font-size: 12.5px;
+    display: none;
+}
+span.imp{
+    color: red;
+    margin-left: 2.5px;
+    font-size: 13px;
+}
+.strict-border{border-color: red !important;}
+div.error-show{display: block !important;}

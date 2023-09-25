@@ -19,15 +19,18 @@ export class LeadAddComponent implements OnInit, OnDestroy {
     private eventService: EventsService
   ) {}
  
+  sourceList:string[] = ["database", "linkedin", "exhibition", "reference", "website", "online lead"];
   addLeadValues:CSVModel = new CSVModel();
   apiSubscription:Subscription = new Subscription();
   eventSubscription:Subscription = new Subscription();
   existingEmails:string[] = [];
   isBtnClicked:boolean = false;
 
+  validationCounter:number = 0;
+
   ngOnInit(): void {
     this.eventSubscription = this.eventService.passExistingEmails.subscribe({
-      next: (res:any) => { this.existingEmails = res; }, 
+      next: (res:any) => { this.existingEmails = res.filter((item:string) => item!=""); }, 
       error: (err:any) => { console.log(err); }
     });
   }
@@ -40,28 +43,78 @@ export class LeadAddComponent implements OnInit, OnDestroy {
   onDismissModal = () => this.activeModal.dismiss('Cross click');
 
   onSubmit() {
-    this.isBtnClicked = true;
-    if(this.existingEmails.includes(this.addLeadValues.email)) {
-      this.isBtnClicked = false;
-      this.utility.showToastMsg("error", "Email Exist", "Email is already exist!");
-      return;
+    if(this.onValidateFields()) {
+      this.isBtnClicked = true;
+console.log(this.existingEmails, this.addLeadValues.email,this.existingEmails.includes(this.addLeadValues.email));
+
+      if(this.existingEmails.includes(this.addLeadValues.email)) {
+        this.isBtnClicked = false;
+        this.utility.showToastMsg("error", "Email Exist", "Email is already exist!");
+        return;
+      }
+  
+      this.addLeadValues.currentStage = "open";
+      this.addLeadValues.userId = this.utility.fetchUserSingleDetail("id");
+      this.addLeadValues.transTime = this.utility.createTimeFormat();
+  
+      this.apiSubscription = this.apiService.addSingleOpenLeadAPI(this.addLeadValues).subscribe({
+        next: (res:any) => {
+          if(!res?.err) {
+            console.log(res?.msg);
+            this.isBtnClicked = false;
+            this.onDismissModal();
+            this.eventService.onCompleteInsertion.next("Inserted");
+            this.utility.showToastMsg("success", "SUCCESS", "Leads are inserted successfully!");
+          }
+        },
+        error: (err:any) => {console.log(err)}
+      });
+    }
+  }
+
+
+  onValidateFields():boolean {
+    const objKeys = ["username", "company", "email", "contact", "remark", "source"];  
+    this.removeAllErrors(objKeys);
+
+    for(let i=0; i<objKeys.length; i++) {
+      if(objKeys[i] == "username" && this.addLeadValues.username=="") this.addClassName("username");
+      else if(objKeys[i] == "company" && this.addLeadValues.company=="") this.addClassName("company");
+      else if(objKeys[i] == "remark" && this.addLeadValues.remark=="") this.addClassName("remark");
+      else if(objKeys[i] == "source") {
+        if(this.addLeadValues.source=="") this.addClassName("source");
+        else if(this.addLeadValues.source=="reference") {
+          if(this.addLeadValues.reference.company=="") this.addClassName("referCompany");
+          if(this.addLeadValues.reference.name=="") this.addClassName("referClient");
+        }     
+      }
+      /*else if(objKeys[i] == "email") {
+        if(this.addLeadValues.email=="") this.addClassName("email");
+        else if(!this.addLeadValues.email.includes("@") || !this.addLeadValues.email.includes("@")) this.addClassName("email");
+      } else if(objKeys[i] == "contact") {
+        if(this.addLeadValues.contact=="") this.addClassName("contact");
+        else if(this.addLeadValues.contact.length<10) this.addClassName("contact");
+      } */
     }
 
-    this.addLeadValues.currentStage = "open";
-    this.addLeadValues.userId = this.utility.fetchUserSingleDetail("id");
-    this.addLeadValues.transTime = this.utility.createTimeFormat();
+    return this.validationCounter==0;
+  }
 
-    this.apiSubscription = this.apiService.addSingleOpenLeadAPI(this.addLeadValues).subscribe({
-      next: (res:any) => {
-        if(!res?.err) {
-          console.log(res?.msg);
-          this.isBtnClicked = false;
-          this.onDismissModal();
-          this.eventService.onCompleteInsertion.next("Inserted");
-          this.utility.showToastMsg("success", "SUCCESS", "Leads are inserted successfully!");
-        }
-      },
-      error: (err:any) => {console.log(err)}
-    });
+  removeAllErrors(objKeys:string[]) {
+    this.validationCounter = 0;
+    objKeys.forEach((val:string) => this.addClassName(val, true));
+    
+    if(this.addLeadValues.source=="reference") {
+      ["referCompany", "referClient"].forEach((val:string) => this.addClassName(val, true));
+    }
+  }
+
+  addClassName(tagId:string, shouldRemove:boolean=false) {
+    const elemTag = document.getElementById(tagId) as HTMLDivElement;
+    if(!shouldRemove) {
+      elemTag.classList.add("error-show");
+      this.validationCounter++;
+    }
+    else elemTag.classList.remove("error-show");
   }
 }

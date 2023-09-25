@@ -12,7 +12,7 @@ import { UtilitiesService } from 'src/app/services/utilities.service';
   templateUrl: './lead-edit.component.html',
   styleUrls: ['./lead-edit.component.scss']
 })
-export class LeadEditComponent implements OnDestroy, OnInit{
+export class LeadEditComponent implements OnDestroy, OnInit {
   constructor(
     public activeModal: NgbActiveModal,
     private utility: UtilitiesService,
@@ -29,6 +29,8 @@ export class LeadEditComponent implements OnDestroy, OnInit{
 
   isNotEditMode:boolean = true;
   tableHeads:string[] = [];
+  errorTypes:any[] = ["", "null", null, "undefined", undefined];
+  sourceList:string[] = ["database", "linkedin", "exhibition", "reference", "website", "online lead"];
   statusOptions:any[] = [
     {label: "Today Followup", id:"open"}, 
     {label: "Next Followup", id:"follow-up"},
@@ -37,6 +39,15 @@ export class LeadEditComponent implements OnDestroy, OnInit{
     {label: "Invoice", id:"invoice"},
     {label: "Reject", id:"reject"},
   ];
+  referenceKeys:any[] = [
+    {label: "Reference Name", key: "name"},
+    {label: "Reference Company", key: "company"},
+    {label: "Reference Contact", key: "contact"},
+    {label: "Reference Designation", key: "designation"}
+  ];
+  listArr:any = { email: [], contact: [] };
+
+  hideMultiOption:any = {email: false, contact: false};
   assigneeList:any[] = [];
   isSeeMoreClicked:boolean = false;
   isSubmitClicked:boolean = false;
@@ -54,11 +65,15 @@ export class LeadEditComponent implements OnDestroy, OnInit{
   leadModelArr = new LeadModel().leadUserKeys;
 
   updatedRemark:string = "";
-  dateTime = {date: "", time: ""};
+  dateTime = {date: "", time: "00:00"};
   assignedUser:string|number = "";
 
   ngOnInit(): void {
     if(this.currentLeadPage!="demo") this.leadModelArr.shift();
+    if(this.leadData["source"] == "reference") {
+      this.leadModelArr.push({ label: "Reference Details", key: "source_detail" })
+    }
+    
     this.getAllUser();
   }
   
@@ -66,7 +81,11 @@ export class LeadEditComponent implements OnDestroy, OnInit{
     const userId = this.utility.fetchUserSingleDetail("id");
     this.apiService.getAllUsersAPI(userId).subscribe({
       next: (res:any) => {
-        if(!res.error) {this.assigneeList = res?.result;}
+        if(!res.error) {
+          (res?.result).map((item:any) => { if(item.id == userId) item.name = "self"; });
+          this.assigneeList = res?.result;
+          this.assigneeList.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
+        }
       }, error: (err:any) => {console.log(err);}
     });
   }
@@ -77,8 +96,8 @@ export class LeadEditComponent implements OnDestroy, OnInit{
     this.leadData = {...itemData};
     this.tempLeadData = {...itemData};
     
-    this.tempLeadData["email"] = (<string>this.tempLeadData["email"]).split(",")[0];//temporarily
-    this.tempLeadData["contact"] = (<string>this.tempLeadData["contact"]).split(",")[0];//temporarily
+    this.tempLeadData["email"] = (<string>this.tempLeadData["email"])//.split(",")[0];//temporarily
+    this.tempLeadData["contact"] = (<string>this.tempLeadData["contact"])//.split(",")[0];//temporarily
     this.tempLeadData["address"] = (<string>this.tempLeadData["address"]).replace(new RegExp(",", "g"), ", ");
     this.tempLeadData["transaction_time"] = this.datepipe.transform(this.tempLeadData["transaction_time"], "MMM d, y, h:mm:ss a");
     if(this.currentLeadPage=="demo") {
@@ -86,8 +105,8 @@ export class LeadEditComponent implements OnDestroy, OnInit{
     }
     
     this.excelModelVal.username = this.leadData["name"];
-    this.excelModelVal.contact = (this.leadData["contact"]).split(",")[0];//temporarily
-    this.excelModelVal.email = (this.leadData["email"]).split(",")[0];//temporarily
+    this.excelModelVal.contact = (this.leadData["contact"])//.split(",")[0];//temporarily
+    this.excelModelVal.email = (this.leadData["email"])//.split(",")[0];//temporarily
     this.excelModelVal.company = this.leadData["company_name"];
     this.excelModelVal.designation = this.leadData["designation"];
     this.excelModelVal.department = this.leadData["department"];
@@ -104,18 +123,35 @@ export class LeadEditComponent implements OnDestroy, OnInit{
     this.excelModelVal.currentStage = this.currentLeadPage;
     this.excelModelVal.userId = this.utility.fetchUserSingleDetail("id");
     this.excelModelVal.leadId = this.leadData["leadid"];
+    if(this.leadData["source"]=="reference") {
+      const referenceObj = JSON.parse(this.leadData["source_detail"]);
+      this.excelModelVal.reference.name = referenceObj["name"];
+      this.excelModelVal.reference.company = referenceObj["company"];
+      this.excelModelVal.reference.contact = referenceObj["contact"];
+      this.excelModelVal.reference.designation = referenceObj["designation"];
+    }
     this.gstNum = this.leadData["gst_num"];
+
+    ["email", "contact"].forEach((item:string) => {
+      const listStrArr = (item=="email" ? this.excelModelVal.email : this.excelModelVal.contact).split(",");
+      for(let i=0; i<listStrArr.length; i++) this.listArr[item].push({value: listStrArr[i]});
+    });
   }
 
   onClickEdit() {
-    if(this.utility.isUserAdmin()) {
+    // if(this.utility.isUserAdmin()) {
       this.isNotEditMode = !this.isNotEditMode;
       this.isSeeMoreClicked = false;
-    }
+    // }
   }
+
+  getItemInArray(referenceData:string) {return [JSON.parse(referenceData)];}
 
   //to update existing user data which is shown on the left side of lead edit modal
   onClickUpdate() {
+    this.excelModelVal.email = this.listArr.email.length==0? "": ((this.listArr.email).map((item:any) => item.value)).toLocaleString();
+    this.excelModelVal.contact = this.listArr.contact.length==0? "": ((this.listArr.contact).map((item:any) => item.value)).toLocaleString();
+
     const apiBody = {
       ...this.excelModelVal,
       id: this.leadData["id"],
@@ -134,22 +170,26 @@ export class LeadEditComponent implements OnDestroy, OnInit{
         }
       },
       error: (err:any) => {console.log(err);}
-    })
+    });
   }
 
   onSubmitLead() {
-    this.isSubmitClicked = true;
-    // this.prevLeadStatus = this.leadData["current_stage"];
-    this.excelModelVal.currentStage = this.currentLeadStatus;
-    this.excelModelVal.transTime = this.utility.createTimeFormat();
-    this.excelModelVal.remark = this.updatedRemark;
-
-    if(this.currentLeadStatus=="follow-up") this.addToFollowupLead();
-    else if(this.currentLeadStatus=="reject") this.addToRejectLead();
-    else if(this.currentLeadStatus=="open") this.addToOpenLead();
-    else if(this.currentLeadStatus=="demo") this.addToDemoLead();
-    else if(this.currentLeadStatus=="pricing") this.addToPricingLead();
-    else if(this.currentLeadStatus=="invoice") this.addToInvoiceLead();
+    if(this.isValidated()) {
+      this.isSubmitClicked = true;
+      this.dateTime.time = this.dateTime.time.replace(new RegExp("NaN", "g"), "00"); // just in case the time option is not selected
+    
+      // this.prevLeadStatus = this.leadData["current_stage"];
+      this.excelModelVal.currentStage = this.currentLeadStatus;
+      this.excelModelVal.transTime = this.utility.createTimeFormat();
+      this.excelModelVal.remark = this.updatedRemark;
+  
+      if(this.currentLeadStatus=="follow-up") this.addToFollowupLead();
+      else if(this.currentLeadStatus=="reject") this.addToRejectLead();
+      else if(this.currentLeadStatus=="open") this.addToOpenLead();
+      else if(this.currentLeadStatus=="demo") this.addToDemoLead();
+      else if(this.currentLeadStatus=="pricing") this.addToPricingLead();
+      else if(this.currentLeadStatus=="invoice") this.addToInvoiceLead();
+    }
   }
 
   onDismissModal = () => this.activeModal.dismiss('Cross click');
@@ -176,18 +216,24 @@ export class LeadEditComponent implements OnDestroy, OnInit{
   }
 
   addToFollowupLead() {
+    debugger
     const tempDate = this.utility.createTimeFormat(this.dateTime);
     // this.excelModelVal.lastFollow = this.leadData["next_followup"];
     this.excelModelVal.nextFollow = tempDate;
 
     const parsedObj = <any[]>JSON.parse(this.leadData["followup_tracker"] || "[]");
-    parsedObj.unshift({ date: tempDate, remark: this.updatedRemark });
+    if(!this.errorTypes.includes(this.leadData["next_followup"])) {
+      this.excelModelVal.lastFollow = this.leadData["next_followup"];    
+      parsedObj.unshift({ date: this.leadData["next_followup"], remark: this.leadData["remarks"] }); //tempDate this.updatedRemark
+    } else { 
+      parsedObj.unshift({ date: this.leadData["transaction_time"], remark: this.leadData["remarks"] });
+      this.excelModelVal.lastFollow = ""; 
+    }
     this.excelModelVal.followupTracker = JSON.stringify(parsedObj);
 
     const apiBody = {...this.excelModelVal, id: this.leadData.id};
 
     if(this.areDatesSame(this.excelModelVal.nextFollow)) {
-      debugger
       this.apiSubscription2 = this.apiService.updateFollowupLeadAPI(apiBody, "Open").subscribe({
         next: (res:any) => {
           this.isSubmitClicked = false;
@@ -210,9 +256,9 @@ export class LeadEditComponent implements OnDestroy, OnInit{
     }
   }
 
-  //especially it is used to restoring again from reject list
+  //especially it is used to restoring again to open leads
   addToOpenLead() {
-    this.excelModelVal = this.utility.setValuesForOpenLead(this.excelModelVal, this.leadData);
+    this.excelModelVal = this.utility.setValuesForOpenLead(this.excelModelVal, this.leadData, "leadEdit-open");
     this.excelModelVal.remark = this.updatedRemark;
 
     this.apiSubscription2 = this.apiService.addSingleOpenLeadAPI(this.excelModelVal).subscribe({
@@ -306,7 +352,7 @@ export class LeadEditComponent implements OnDestroy, OnInit{
   }
 
   setPreRequesetsForLeadMovement() {
-    this.excelModelVal = this.utility.setValuesForOpenLead(this.excelModelVal, this.leadData);
+    this.excelModelVal = this.utility.setValuesForOpenLead(this.excelModelVal, this.leadData, "leadEdit");
     this.excelModelVal.remark = this.updatedRemark;
     this.excelModelVal.userId = this.assignedUser;
     this.excelModelVal.currentStage = this.currentLeadPage;
@@ -322,6 +368,7 @@ export class LeadEditComponent implements OnDestroy, OnInit{
   }
 
   onSelectEditStatus() {
+    this.removeError();
     if(this.currentLeadStatus == this.currentLeadPage) {
       this.updatedRemark = this.excelModelVal.remark;
       if(this.currentLeadStatus=="follow-up") {
@@ -335,27 +382,30 @@ export class LeadEditComponent implements OnDestroy, OnInit{
 
 
   onUpdateLead() {
-    this.isSubmitClicked = true;
-    const bodyObj:any = {
-      id: this.leadData["id"],
-      remark: this.updatedRemark
-    };
-    const isFollowUp = this.currentLeadStatus=="follow-up";
-    
-    if(isFollowUp) {bodyObj["dateTime"] = `${this.dateTime.date} ${this.dateTime.time}:00`;} 
-    else {bodyObj["tableType"] = this.currentLeadStatus.replace("-", "");}
+    if(this.isValidated()) {
+      this.isSubmitClicked = true;
 
-    this.apiSubscription1 = (isFollowUp 
-      ? this.apiService.updateFollowupLeadAPI(bodyObj)
-      : this.apiService.updateLeadRemarkAPI(bodyObj)
-    ).subscribe({
-      next: (res:any) => {
-        this.isSubmitClicked = false;
-        this.callback.emit({msg: res?.msg, isMsg: true});
-        this.onDismissModal();
-        this.utility.showToastMsg("success", "SUCCESS", `Lead updated successfully!`);
-      }, error: (err:any) => console.log(err)
-    });
+      const bodyObj:any = {
+        id: this.leadData["id"],
+        remark: this.updatedRemark
+      };
+      const isFollowUp = this.currentLeadStatus=="follow-up";
+      
+      if(isFollowUp) {bodyObj["dateTime"] = `${this.dateTime.date} ${this.dateTime.time}:00`;} 
+      else {bodyObj["tableType"] = this.currentLeadStatus.replace("-", "");}
+  
+      this.apiSubscription1 = (isFollowUp 
+        ? this.apiService.updateFollowupLeadAPI(bodyObj)
+        : this.apiService.updateLeadRemarkAPI(bodyObj)
+      ).subscribe({
+        next: (res:any) => {
+          this.isSubmitClicked = false;
+          this.callback.emit({msg: res?.msg, isMsg: true});
+          this.onDismissModal();
+          this.utility.showToastMsg("success", "SUCCESS", `Lead updated successfully!`);
+        }, error: (err:any) => console.log(err)
+      });
+    }
   }
 
   areDatesSame(givenDate:string):boolean {
@@ -368,6 +418,66 @@ export class LeadEditComponent implements OnDestroy, OnInit{
 
     return (isDaySame && isMonthSame && isYearSame);
   }
+
+
+
+  isValidated():boolean {
+    this.removeError();
+    let validationCounter = 0;
+
+    if(["follow-up", "demo", "pricing", "invoice"].includes(this.currentLeadStatus)) {
+      if(["follow-up", "demo"].includes(this.currentLeadStatus)) {
+        if([this.dateTime.date,this.dateTime.time].includes("")) {
+          this.toggleErrorApply("datetime");
+          validationCounter++;
+        }
+      }
+
+      if(["demo", "pricing", "invoice"].includes(this.currentLeadStatus)) {
+        if(this.assignedUser=="") {
+          this.toggleErrorApply("assignTo");
+          validationCounter++;
+        }
+      }
+
+      if(this.currentLeadStatus=="invoice") {
+        if(this.planName=="") {this.toggleErrorApply("planname"); validationCounter++;}
+        if(this.planPrice=="") {this.toggleErrorApply("planprice"); validationCounter++;}
+      }
+    } 
+    
+    if(this.updatedRemark=="") {
+      this.toggleErrorApply("remarkBox");
+      validationCounter++;
+    }
+
+    return validationCounter==0;
+  }
+
+  removeError() {
+    const classNames = ["assignTo", "datetime", "planname", "planprice", "remarkBox"];
+    classNames.forEach(classItem => this.toggleErrorApply(classItem, false));
+  }
+
+  toggleErrorApply(classname:string, shouldApply:boolean=true) {
+    const elemArr = document.querySelectorAll(`.${classname}`);
+    elemArr.forEach(elem => {
+      if(shouldApply) elem.classList.add("strict-border");
+      else elem.classList.remove("strict-border");
+    });
+  }
+
+  getContactList(listStr:string):string[] {return listStr.split(",");}
+
+  getFirstItem(listStr:string, key:string):string { 
+    if(["contact","email"].includes(key)) return (listStr.split(",")[0]).trim(); 
+    else return listStr;
+  }
+  onAddItem(key:string) {
+    if((this.listArr[key].at(-1)).value != "") { this.listArr[key].push({value: ""}); }
+  }
+
+  onRemoveItem(key:string, index:number) {(this.listArr[key]).splice(index, 1);}
 }
 
 

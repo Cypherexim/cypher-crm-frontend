@@ -53,10 +53,10 @@ export class LoginComponent implements OnInit{
           if(followupLeads.length > 0) {
             for(let i=0; i<followupLeads.length; i++) {
               const leadDate = followupLeads[i]["next_followup"];
-              const dates = [new Date().toLocaleDateString(), new Date(leadDate).toLocaleDateString()];
+              const dates:Date[] = [new Date(), new Date(leadDate)];
               
-              if(dates[0] == dates[1]) {
-                this.leadDataBody = await this.utility.setValuesForOpenLead(this.leadDataBody, followupLeads[i]);
+              if((dates[0].toLocaleDateString() == dates[1].toLocaleDateString()) || (dates[1].valueOf() < dates[0].valueOf())) {
+                this.leadDataBody = await this.utility.setValuesForOpenLead(this.leadDataBody, followupLeads[i], "login");
               
                 await this.insertFollowupToOpenLead(this.leadDataBody);
                 await this.deleteFollowupLead({
@@ -69,7 +69,7 @@ export class LoginComponent implements OnInit{
           }
         }
       },
-      error: (err:any) => {}
+      error: (err:any) => {console.log(err);}
     });
   }
 

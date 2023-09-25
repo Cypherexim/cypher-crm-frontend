@@ -33,12 +33,41 @@ div.lead-edit-container{
                     font-weight: 500;
                     letter-spacing: 0.5px;
                     margin-bottom: 5px;
+
+                    i{
+                        cursor: pointer;
+                        float: right;
+                        font-size: 15px;
+                        color: var(--success);
+                        &.pi-times-circle{color: red;}
+                        &:hover{color: var(--danger);}
+                    }
                 }
                 input{
                     font-size: 15px;
                     padding: 7px 10px;
                 }
                 textarea{font-size: 15px;}
+
+                select{    
+                    color: #495057;
+                    font-size: 15px;
+                    padding: 10px 10px;
+                    border-radius: 5px;
+                    outline-color: #609af8;
+                    border: 1px solid #c2c2c2;
+                    &:hover{border-color: #3B82F6;}
+                }
+
+                div.reference-box{
+                    display: flex;
+                    row-gap: 8px;
+                    margin-top: 10px;
+                    padding: 15px 10px;
+                    border-radius: 10px;
+                    flex-direction: column;
+                    border: 1px solid #d1d1d1;
+                }
             }
 
             div.submitBtn button{
@@ -70,12 +99,45 @@ div.lead-edit-container{
                     }
                 }
                 div.value{
-                    font-size: 16.5px;
+                    font-size: 15px;
                     letter-spacing: 0.4px;
                     font-weight: 400;
                     line-height: 22.5px;
                     word-wrap: break-word;
                     white-space: break-spaces;
+
+                    span i{
+                        cursor: pointer;
+                        &:hover{color: red;}
+                    }
+                    div.more-options{
+                        border: 1px solid #c2c2c2;
+                        border-radius: 10px;
+                        padding: 0px 5%;
+                        margin-top: 5%;
+                        max-height: 50vh;
+                        letter-spacing: 0.5px;
+                        overflow: hidden;
+                        transition: all 0.4s ease;
+                        div.items{
+                            padding: 2.5px 0;
+                            &:first-child{padding-top: 5px;}
+                            &:last-child{padding-bottom: 5px;}
+                        }
+
+                        &.w-9{font-size: 15px;}
+                        &.w-full{font-size: 13.5px;}
+                    }
+                    div.more-options.hide-box{
+                        max-height: 0vh;
+                        border: none;
+                    }
+                }
+                span.reference-box{
+                    border: 2px solid #c8c8c8;
+                    display: block;
+                    padding: 5px 10px;
+                    border-radius: 10px;
                 }
             }
         }
@@ -139,6 +201,8 @@ div.lead-edit-container{
         }
     }
 }
+
+.w-95{width: 95%;}
 
 span.label{
     font-size: 14px;

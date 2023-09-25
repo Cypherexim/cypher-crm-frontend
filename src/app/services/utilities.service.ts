@@ -54,7 +54,7 @@ export class UtilitiesService {
       time[5] = +time[0] < 12 ? ' AM' : ' PM'; // Set AM/PM
       time[0] = +time[0] % 12 || 12; // Adjust hours
     }
-    return time.join (''); // return adjusted time or original string
+    return time.join(''); // return adjusted time or original string
   }
 
   createTimeFormat(dateTime:any=null) {
@@ -70,7 +70,7 @@ export class UtilitiesService {
   }
   
 
-  setValuesForOpenLead(leadModel:any, followupLeads:any) {
+  setValuesForOpenLead(leadModel:any, followupLeads:any, callBy:string) {
     leadModel.userId = followupLeads["user_id"];
     leadModel.leadId = followupLeads["leadid"];
     leadModel.username = followupLeads["name"];
@@ -90,11 +90,19 @@ export class UtilitiesService {
     leadModel.leadTracker = followupLeads["lead_tracker"];
     leadModel.followupTracker = followupLeads["followup_tracker"];
     leadModel.transTime = new Date().toISOString();
-    leadModel.nextFollow = "";
-    if(leadModel.followupTracker != "") {
-      const parsedArr = JSON.parse(leadModel.followupTracker);
-      leadModel.lastFollow = parsedArr[0]["date"];      
-    } else { leadModel.lastFollow = ""; }
+    leadModel.nextFollow = followupLeads["next_followup"];
+    leadModel.lastFollow = followupLeads["last_followup"];
+    // if(["login","lead","leadEdit-open"].includes(callBy)) { //while login and restore
+    // }
+
+    // //for all such as demo, pricing, invoice
+    // if(callBy=="leadEdit") { 
+    //   leadModel.nextFollow = "";
+    //   if(leadModel.followupTracker != "") {
+    //     const parsedArr = JSON.parse(leadModel.followupTracker);
+    //     leadModel.lastFollow = parsedArr[0]["date"];      
+    //   } else { leadModel.lastFollow = ""; }
+    // }
 
     return leadModel;
   }

@@ -25,6 +25,12 @@ export class CSVModel {
     plan_name: string = "";
     plan_price: string = "";
     performa_num:number = 0;
+    reference:{
+        name: string,
+        company: string,
+        contact: string,
+        designation: string
+    } = {name: "", company: "", contact: "", designation: ""}
 }
 // export type CSVModel = Omit<CSVObject, "lastFollow"|"nextFollow"|"assignedBy"|"currentStage"|"transTime">
 
