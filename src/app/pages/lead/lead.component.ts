@@ -3,14 +3,14 @@ import { DatePipe, TitleCasePipe } from '@angular/common';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { LeadEditComponent } from 'src/app/modals/lead-edit/lead-edit.component';
-import { ApiService } from 'src/app/services/api.service';
 import { Subscription } from 'rxjs';
-import { UtilitiesService } from 'src/app/services/utilities.service';
 import { LeadModel } from 'src/app/models/leadModel';
 import { EllipsisPipe } from 'src/app/common/ellipsis.pipe';
-import { EventsService } from 'src/app/services/events.service';
 import { CSVModel } from 'src/app/models/excelModel';
 import { LeadInvoiceComponent } from 'src/app/modals/lead-invoice/lead-invoice.component';
+import { UtilitiesService } from '../../services/utilities.service';
+import { ApiService } from '../../services/api.service';
+import { EventsService } from '../../services/events.service';
 
 @Component({
   selector: 'app-lead',
@@ -199,6 +199,13 @@ export class LeadComponent implements OnInit, OnDestroy {
     });
   }
 
+  openAddPInvoice() {
+    const modalRef = this.modalService.open(LeadInvoiceComponent, { backdrop: "static", keyboard: false, windowClass: 'leadAddModalCss3' });
+    (<LeadInvoiceComponent>modalRef.componentInstance).isAddPI = true;
+    (<LeadInvoiceComponent>modalRef.componentInstance).taxNum = this.taxNum;
+    (<LeadInvoiceComponent>modalRef.componentInstance).orderNum = this.piNum;
+  }
+
   openInvoiceModal(itemData:any) {
     const suffixPiNum = `${new Date().getFullYear()}-${`${new Date().getFullYear()+1}`.substring(2, 4)}`;
     const modalRef = this.modalService.open(LeadInvoiceComponent, { backdrop: "static", keyboard: false, windowClass: 'leadAddModalCss3' });
@@ -294,9 +301,6 @@ export class LeadComponent implements OnInit, OnDestroy {
   toTitleCase(str:string) {return str[0].toUpperCase() + str.substring(1, str.length);}
   doesFollowupExist(followupStr:string|any):boolean {
     if(this.errorTypes.includes(followupStr)) return false;
-    else {
-      debugger
-      return true;
-    }
+    else return true;
   }
 }

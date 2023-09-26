@@ -134,4 +134,12 @@ export class ApiService {
   updateLeadRemarkAPI(body:any) {
     return this.http.post(`${environment.apiurl}/lead/updatePartialAllLead`, body);
   }
+
+  getCompaniesListAPI() {
+    return this.http.get(`${environment.apiurl}/getAllCompanies`);
+  }
+
+  getSingleCompanyDetailAPI(id:any) {
+    return this.http.get(`${environment.apiurl}/getSingleCompany?leadId=${id}`);
+  }
 }

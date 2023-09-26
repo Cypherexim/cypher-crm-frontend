@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { CSVModel } from '../models/excelModel';
 import { UtilitiesService } from './utilities.service';
+import { CSVModel } from 'src/app/models/excelModel';
 
 @Injectable({
   providedIn: 'root'

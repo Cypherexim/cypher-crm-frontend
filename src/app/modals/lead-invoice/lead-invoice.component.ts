@@ -1,6 +1,7 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subscription } from 'rxjs';
+import { EllipsisPipe } from 'src/app/common/ellipsis.pipe';
 import { ApiService } from 'src/app/services/api.service';
 import { UtilitiesService } from 'src/app/services/utilities.service';
 
@@ -13,7 +14,8 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
   constructor(
     public activeModal: NgbActiveModal,
     private apiService: ApiService,
-    private utility: UtilitiesService
+    private utility: UtilitiesService,
+    private ellipsesPipe: EllipsisPipe
   ) {}
 
   @Output() callback:EventEmitter<any> = new EventEmitter<any>();
@@ -23,6 +25,8 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
   currentStage:string = "";
   isApiInProcess:boolean = false;
   visibleDialogue:boolean = false;
+  visibleDialogue2:boolean = false;
+  isAddPI:boolean = false;
   userData:any = {};
   doesUserBelongToDelhi:boolean = true;
   editFormType:string = "";
@@ -38,9 +42,16 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
   taxNum:string = "";
   orderNum:number = 0;
   issuedBy:any = "";
+  companiesList:any[] = [];
+  copyCompaniesList:any[] = [];
+  choosenCompany:any = {id: "", name: ""};
+  keyUpCompanyStr:string = "";
   assigneeList:any[] = [];
+  errorTypes:any[] = ["", "null", null, "undefined", undefined];
   invoiceDate:string = this.utility.createTimeFormat().split(" ")[0];
   gstNum:string = "";
+  emailArr:string[] = [];
+  email:string = "";
   tableData = {
     duration: "",
     hsnCode: 998371,
@@ -81,6 +92,7 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
     if(this.doesUserBelongToDelhi) this.tableHeads = this.tableHeadsTypes.insideDelhi;
     else this.tableHeads = this.tableHeadsTypes.outOfDelhi;
     this.getAllUser();
+    this.getCompaniesList();
   }
 
   onSetAttachment = (value:string) => this.attachmentType = [value];
@@ -100,14 +112,16 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
   onClickCheck(e:any) {
     this.isSameAdd = e.target.checked;
     if(this.isSameAdd) this.address.shipping = this.address.billing;
-    else this.address.shipping = {line1: "", line2: ""};    
+    else this.address.shipping = {line1: "", line2: ""};
   }
 
   onBindUserData(userData:any) {
-    const {address, gst_num, company_name, name, performa_num} = userData;
+    const {address, gst_num, email, company_name, name, performa_num} = userData;
     this.doesUserBelongToDelhi = (address.toLowerCase()).includes("delhi");
     this.address.billing.line1 = address;
     this.gstNum = gst_num;
+    this.emailArr = email.split(",");
+    this.email = this.emailArr[0];
     this.companyName = company_name;
     this.userName = name;
     this.userData = {...userData};
@@ -190,8 +204,52 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
     });
   }
 
+  getCompaniesList() {
+    this.apiService.getCompaniesListAPI().subscribe({
+      next: (res:any) => {
+        if(!res?.error) {
+          this.companiesList = res?.result;
+          this.copyCompaniesList = res?.result;
+        }
+      }, error: (err:any) => console.log(err)
+    });
+  }
+
+  onSelectCompany(item:any) { 
+    this.choosenCompany.name = this.ellipsesPipe.transform(item?.company_name, 30); 
+    this.choosenCompany.id = item?.id; 
+    this.visibleDialogue2 = false;
+  }
+  onSerchCompany() {
+    const strLen = this.keyUpCompanyStr.length;
+    this.copyCompaniesList = this.companiesList.filter((item:any) => (item["company_name"]).substr(0, strLen).toLowerCase() == this.keyUpCompanyStr.toLowerCase());
+  }
+
+  getSingleCompanyDetail() {
+    this.isApiInProcess = true;
+    this.apiService.getSingleCompanyDetailAPI(this.choosenCompany?.id).subscribe({
+      next: (res:any) => {
+        if(!res?.error) {
+          const {company_name, name:clientName, address, gst_num, email} = res?.result[0];
+          this.companyName = company_name;
+          this.userName = clientName;
+          this.gstNum = gst_num;
+          this.email = email;
+          this.address.billing.line1 = address; 
+          
+          if(!this.errorTypes.includes(this.gstNum) && this.gstNum.length>=10) {
+            this.doesUserBelongToDelhi = this.gstNum.substring(0, 2)=="07";
+          } else this.doesUserBelongToDelhi = false;
+
+          this.isApiInProcess = false;
+          this.isAddPI = false;
+        }
+      }, error: (err:any) => console.log(err)
+    });
+  }
+
   onBindRestoredData(dataObj:any) {
-    const {shipping_add, billing_add, CGST_taxPer, SGST_taxPer, IGST_taxPer, company_name, name, gst_num} = dataObj;
+    const {shipping_add, billing_add, email, CGST_taxPer, SGST_taxPer, IGST_taxPer, company_name, name, gst_num} = dataObj;
     const {bankName, branch, accountNo, ifsc} = JSON.parse(dataObj["bank_data"]);
     this.selectedReport = dataObj["report_name"];
     this.tableData.duration = dataObj["duration"];
@@ -205,6 +263,7 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
     this.companyName = company_name;
     this.userName = name;
     this.gstNum = gst_num;
+    this.email = email;
     this.issuedBy = dataObj["issued_by"];
     this.address.billing = {line1: (billing_add).split("~")[0], line2: (billing_add).split("~")[1]};
     this.doesUserBelongToDelhi = (this.address.billing.line1).toLowerCase().includes("delhi");

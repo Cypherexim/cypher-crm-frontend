@@ -47,3 +47,16 @@ div.lead-add-container{
         }
     }
 }
+
+
+
+@media screen and (max-width:1601px) {
+    div.lead-add-container  div.form-container { height: 75%;}
+}
+@media screen and (max-width:1281px) {
+    div.lead-add-container  div.form-container{margin-top: -4%;}
+}
+@media screen and (max-width:1025px) {
+    div.lead-add-container  div.form-container{margin-top: -6%;}
+}
+

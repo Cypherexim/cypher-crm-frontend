@@ -45,8 +45,8 @@ export class LeadAddComponent implements OnInit, OnDestroy {
   onSubmit() {
     if(this.onValidateFields()) {
       this.isBtnClicked = true;
-console.log(this.existingEmails, this.addLeadValues.email,this.existingEmails.includes(this.addLeadValues.email));
 
+      this.addLeadValues.email = this.addLeadValues.email.toLowerCase();
       if(this.existingEmails.includes(this.addLeadValues.email)) {
         this.isBtnClicked = false;
         this.utility.showToastMsg("error", "Email Exist", "Email is already exist!");

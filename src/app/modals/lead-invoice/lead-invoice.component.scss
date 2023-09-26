@@ -205,18 +205,46 @@ div.invoice-container{
         }
     }
 
-    div.loading-screen{
-        height: 95%;
-        background-color: #00000059;
-        div.loading{
-            i{font-size: 2.2rem;color: white;}
-            span{
-                font-size: 14px;
-                margin-top: 10px;
-                font-weight: 500;
-                letter-spacing: 0.8px;
-                color: white;
+    div.add-pi{
+        width: 100%;
+        margin-top: -5%;
+        div.center-box{
+            h3{
+                text-align: center;
+                font-size: 30px;
+                font-weight: 400;
             }
+            div.dropdown{
+                align-items: center;
+                border: 1px solid #c2c2c2;
+                padding-top: 10px;
+                padding-bottom: 10px;
+                width: 30%;
+                margin: auto;
+                background-color: white;
+                span{
+                    font-size: 17px;
+                    letter-spacing: 0.5px;
+                    color: #413f3f;
+                }
+                i{font-size: 14px;}
+            }
+            div.submit button{padding: 5px 5%;}
+        }
+    }
+}
+
+div.loading-screen{
+    height: 95%;
+    background-color: #00000059;
+    div.loading{
+        i{font-size: 2.2rem;color: white;}
+        span{
+            font-size: 14px;
+            margin-top: 10px;
+            font-weight: 500;
+            letter-spacing: 0.8px;
+            color: white;
         }
     }
 }
@@ -272,6 +300,16 @@ p-dialog{
                     }
                 }
             }
+
+            div.email-drop{
+                select {
+                    border: 1px solid #d5d5d5;
+                    padding: 7px 5px;
+                    font-size: 16px;
+                    outline: none;
+                }
+                input{ padding: 5px 10px; border-radius: 0; }
+            }
         }
 
         section.second{
@@ -322,4 +360,37 @@ p-dialog{
         }
     }
 }
+
+p-dialog#dialog3{
+    div.dropdown-box{
+        height: 100%;
+        padding-top: 15%;
+        input{
+            border: 1px solid #c2c2c2;
+            width: 100%;
+            padding: 5px 10px;
+            outline: none;
+            font-size: 15px;
+        }
+        div.drop-options{
+            width: 100%;
+            height: 85%;
+            margin-top: 3.5%;
+            overflow: auto;
+            border: 1px solid #e5e4e4;
+            div.option{
+                font-size: 15px;
+                cursor: pointer;
+                padding: 5px 10px;
+                letter-spacing: 0.8px;
+                border-bottom: 1px dotted #c2c2c2;
+                &:hover{
+                    background-color: #eeeeee;
+                    border-bottom-color: #eeeeee;
+                }
+            }
+        }
+    }
+}
+
 

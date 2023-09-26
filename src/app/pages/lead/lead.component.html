@@ -7,7 +7,7 @@
         <div class="container-box w-full h-full">
             <div class="right-btns absolute">
                 <button (click)="refreshPage()" pButton pRipple class="p-button-danger mr-2 ">Refresh <i class="pi pi-refresh"></i></button>
-                <button [disabled]="true" *ngIf="currentStage=='invoice'" pButton pRipple class="addPi p-button-success mr-2 "><i class="fa-sharp fa-solid fa-plus mr-1"></i>Add PI</button>
+                <button *ngIf="currentStage=='invoice'" pButton pRipple class="addPi p-button-success mr-2" (click)="openAddPInvoice()"><i class="fa-sharp fa-solid fa-plus mr-1"></i>Add PI</button>
                 <select id="sourceId" (change)="onChangeSource($event)" *ngIf="!['reject','status','invoice','tax'].includes(currentStage)">
                     <option value="">--Select Source--</option>
                     <option value="{{item}}" *ngFor="let item of sourceList">{{item | titlecase}}</option>

@@ -95,7 +95,7 @@ export class LeadbarComponent implements OnInit, OnDestroy {
 
   onFilterLeads() {
     const toLower = (item:any):string => typeof item=="string" ? item.toLowerCase() : item+"";
-    const filteredList = this.leadList.filter((item:any) => (Object.values(item).filter((item2:any) => toLower(item2).includes(this.searchInp))).length>0);
+    const filteredList = this.leadList.filter((item:any) => (Object.values(item).filter((item2:any) => toLower(item2).includes(this.searchInp.toLowerCase()))).length>0);
     this.callBack.emit(filteredList);
   }
 }

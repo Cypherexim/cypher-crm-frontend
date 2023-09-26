@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CSVModel } from 'src/app/models/excelModel';
-import { ApiService } from 'src/app/services/api.service';
-import { EventsService } from 'src/app/services/events.service';
-import { UtilitiesService } from 'src/app/services/utilities.service';
+import { ApiService } from '../../services/api.service';
+import { UtilitiesService } from '../../services/utilities.service';
+import { EventsService } from '../../services/events.service';
 
 @Component({
   selector: 'app-login',
