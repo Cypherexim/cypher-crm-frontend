@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { Subscription } from 'rxjs';
+import { Subscription, forkJoin } from 'rxjs';
 import { EllipsisPipe } from 'src/app/common/ellipsis.pipe';
 import { ApiService } from 'src/app/services/api.service';
 import { UtilitiesService } from 'src/app/services/utilities.service';
@@ -21,8 +21,11 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
   @Output() callback:EventEmitter<any> = new EventEmitter<any>();
   apiSubscription1:Subscription = new Subscription();
   apiSubscription2:Subscription = new Subscription();
+  apiSubscription3:Subscription = new Subscription();
+  apiSubscription4:Subscription = new Subscription();
 
   currentStage:string = "";
+  leadId:number = 0;
   isApiInProcess:boolean = false;
   visibleDialogue:boolean = false;
   visibleDialogue2:boolean = false;
@@ -100,6 +103,8 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.apiSubscription1.unsubscribe();
     this.apiSubscription2.unsubscribe();
+    this.apiSubscription3.unsubscribe();
+    this.apiSubscription4.unsubscribe();
   }
 
   onDismissModal = () => this.activeModal.dismiss('Cross click');
@@ -116,9 +121,10 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
   }
 
   onBindUserData(userData:any) {
-    const {address, gst_num, email, company_name, name, performa_num} = userData;
+    const {address, gst_num, email, company_name, name, performa_num, leadid, plan_price} = userData;
     this.doesUserBelongToDelhi = (address.toLowerCase()).includes("delhi");
     this.address.billing.line1 = address;
+    this.leadId = leadid;
     this.gstNum = gst_num;
     this.emailArr = email.split(",");
     this.email = this.emailArr[0];
@@ -126,6 +132,10 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
     this.userName = name;
     this.userData = {...userData};
     this.orderNum = performa_num;
+    this.tableData.rate = plan_price;
+
+    this.doesUserBelongToDelhi = this.gstNum.substring(0, 2)=="07";
+    this.onCalculateTax();
   }
 
   convertNumToString(num:any, isWithCurrrency:boolean=true) {
@@ -152,10 +162,16 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
       this.onDismissModal();
       return;
     }
-
+    const finalStep = (msg:string) => {
+      this.isApiInProcess = false;
+      this.callback.emit(true);
+      this.utility.showToastMsg("success", "SUCCESS", msg);
+      this.onDismissModal();
+    };
     this.isApiInProcess = true;
     const {cgst, sgst, igst} = this.tableData.gst;
     const apiBody = {
+      leadId: this.leadId,
       userId: this.userData?.user_id,
       planName: this.userData?.plan_name,
       invoiceDate: this.invoiceDate,
@@ -177,27 +193,38 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
       paymentStatus: this.paymentStatus.toString()
     };
 
+    const emailObj:any = {userData:this.userData, hasAttachement:this.attachmentType[0]!="none" };
+    if(emailObj.hasAttachement) emailObj["isProformaFile"] = !this.attachmentType.includes("tax");    
+
     this.apiSubscription1 = this.apiService.addTaxInvoiceLeadAPI(apiBody).subscribe({
-      next: (res:any) => {
-        if(!res.error) {
+      next: (res1:any) => {
+        if(!res1.error) {
+
           this.apiSubscription2 = this.apiService.updateStatusLeadAPI({email: this.userData?.email}).subscribe({
-            next: (res:any) => {
-              if(!res.error) {
-                this.isApiInProcess = false;
-                this.callback.emit(true);
-                this.utility.showToastMsg("success", "SUCCESS", "Proforma Invoice has been updated to Tax Invoice.");
-                this.onDismissModal();
-              } else this.utility.showToastMsg("error", "ERROR", res.msg);
+            next: (res2:any) => {
+              if(!res2.error) {
+
+                if(this.isMailNeeded=="yes") {
+                  this.apiSubscription3 = this.apiService.sendInvoiceEmailAPI(emailObj).subscribe({
+                    next: (res3:any) => {
+                      if(!res3.error) finalStep("Proforma Invoice has been updated to Tax Invoice and Email has been sent successfully.");
+                      else this.utility.showToastMsg("error", "ERROR", res3.msg);
+                    }, error: (err:any) => console.log(err)
+                  });
+                } else finalStep("Proforma Invoice has been updated to Tax Invoice.");
+
+              } else this.utility.showToastMsg("error", "ERROR", res2.msg);
             }, error: (err:any) => console.log(err)
           });
+
         } else this.callback.emit(false);
       }, error: (err:any) => console.log(err)
-    })
+    });
   }
 
   getAllUser() {
     const userId = this.utility.fetchUserSingleDetail("id");
-    this.apiService.getAllUsersAPI(userId).subscribe({
+    this.apiSubscription2 = this.apiService.getAllUsersAPI(userId).subscribe({
       next: (res:any) => {
         if(!res.error) {this.assigneeList = res?.result;}
       }, error: (err:any) => {console.log(err);}
@@ -205,7 +232,7 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
   }
 
   getCompaniesList() {
-    this.apiService.getCompaniesListAPI().subscribe({
+    this.apiSubscription3 = this.apiService.getCompaniesListAPI().subscribe({
       next: (res:any) => {
         if(!res?.error) {
           this.companiesList = res?.result;
@@ -227,7 +254,7 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
 
   getSingleCompanyDetail() {
     this.isApiInProcess = true;
-    this.apiService.getSingleCompanyDetailAPI(this.choosenCompany?.id).subscribe({
+    this.apiSubscription4 = this.apiService.getSingleCompanyDetailAPI(this.choosenCompany?.id).subscribe({
       next: (res:any) => {
         if(!res?.error) {
           const {company_name, name:clientName, address, gst_num, email} = res?.result[0];
@@ -260,13 +287,14 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
     this.tableData.amount = dataObj["amountAfterTax"];
     this.tableData.unit = dataObj["unit"];
     this.tableData.taxable = dataObj["tax_amt"];
+    this.leadId = dataObj["leadid"];
     this.companyName = company_name;
     this.userName = name;
     this.gstNum = gst_num;
     this.email = email;
     this.issuedBy = dataObj["issued_by"];
     this.address.billing = {line1: (billing_add).split("~")[0], line2: (billing_add).split("~")[1]};
-    this.doesUserBelongToDelhi = (this.address.billing.line1).toLowerCase().includes("delhi");
+    this.doesUserBelongToDelhi = this.gstNum.substring(0, 2)=="07";
     this.taxNum = dataObj["tax_num"];
     this.orderNum = dataObj["performa_num"];
     this.invoiceDate = (dataObj["invoice_date"]).split("T")[0];

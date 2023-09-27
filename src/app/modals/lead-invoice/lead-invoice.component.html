@@ -4,7 +4,7 @@
         <i class="pi pi-times" (click)="onDismissModal()"></i>
     </header>
 
-    <div *ngIf="!isAddPI">
+    <div class="invoice-form" *ngIf="!isAddPI">
         <div class="form-body">
             <div *ngIf="orderNum" class="order-num mb-3">Order Number:&nbsp;&nbsp;{{orderNum}}</div>
             <section class="first flex align-items-center justify-content-between">
@@ -13,12 +13,15 @@
                     <h3 class="m-0">{{companyName}}</h3>
                 </div>
     
-                <div class="inp-form relative">
+                <div class="inp-form relative flex">
                     <select class="mr-1" [(ngModel)]="issuedBy">
                         <option value="">--Issued By--</option> 
                         <option value="{{item?.id}}" *ngFor="let item of assigneeList">{{item?.name}}</option>
                     </select>
                     <input class="mr-1" type="text" placeholder="User Name" [(ngModel)]="userName" />
+                    <!-- <div class="username flex">
+                        <select><option value="Mr.">Mr.</option><option value="Ms.">Ms.</option></select>
+                    </div> -->
                     <input class="mr-1" type="text" placeholder="Invoice Number" [(ngModel)]="taxNum" />
                     <input type="date" [(ngModel)]="invoiceDate" onfocus="this.showPicker()" />
     
@@ -321,4 +324,4 @@
     </div>
 </p-dialog>
 
-<p-toast position="bottom-right"></p-toast>
+<!-- <p-toast position="bottom-right"></p-toast> -->

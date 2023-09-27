@@ -142,4 +142,8 @@ export class ApiService {
   getSingleCompanyDetailAPI(id:any) {
     return this.http.get(`${environment.apiurl}/getSingleCompany?leadId=${id}`);
   }
+
+  sendInvoiceEmailAPI(apiObj:any) {
+    return this.http.post(`${environment.apiurl}/sendEmail`, apiObj);
+  }
 }
