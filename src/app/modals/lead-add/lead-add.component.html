@@ -5,7 +5,8 @@
         <div class="form-box px-2 flex flex-column h-10 overflow-auto">
             <span class="p-float-label relative">
                 <input class="w-full" [(ngModel)]="addLeadValues.username" type="text" id="username1" pInputText />
-                <label htmlFor="username1">Client Name <span class="impInp">*</span></label>
+                <!-- <span class="impInp">*</span> -->
+                <label htmlFor="username1">Client Name</label>
                 <div id="username" class="error">*Client name is required!</div>
             </span>
 
@@ -86,13 +87,14 @@
             </div>
             <span class="p-float-label relative">
                 <textarea  rows="5" class="w-full" [(ngModel)]="addLeadValues.remark" pInputTextarea></textarea>
-                <label for="float-input">Remark <span class="impInp">*</span></label>
+                <!-- <span class="impInp">*</span> -->
+                <label for="float-input">Remark</label>
                 <div id="remark" class="error">*Source is required!</div>
             </span>
         </div>
 
         <div class="submit-btn text-center">
-            <button pButton pRipple label="{{isBtnClicked ?'Submitting...':'Submit'}}" (click)="onSubmit()" class="p-button-success mr-2 "></button>
+            <button pButton pRipple label="{{isBtnClicked ?'Submitting...':'Submit'}}" (click)="onSubmit()" [disabled]="isBtnClicked" class="p-button-success mr-2 "></button>
             <button pButton pRipple label="Cancel" (click)="onDismissModal()" class="p-button-danger"></button>
         </div>
     </div>

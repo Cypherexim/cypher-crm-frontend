@@ -21,6 +21,7 @@ export class LeadFileComponent implements OnInit, OnDestroy{
   ) {}
 
   apiSubscription1:Subscription = new Subscription();
+  apiSubscription2:Subscription = new Subscription();
   eventSubscription1:Subscription = new Subscription();
 
   acceptExcelFormats:string = ".csv";//, .xls, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
@@ -48,29 +49,53 @@ export class LeadFileComponent implements OnInit, OnDestroy{
   onSubmit() {
     this.csvparser.convertIntoJson(this.fileInpVal, (err:any, csvRecords:any) => {
       if(!err) {
-        const filteredCsvRecords = csvRecords.filter((item:any) => !this.existingEmails.includes(item["email"]));
+        // const filteredCsvRecords = csvRecords.filter((item:any) => !this.existingEmails.includes(item["email"]));
 
-        if(filteredCsvRecords.length==0) {
-          this.utility.showToastMsg("error", "Exist Email", "All emails are already exist!");
-          return;
-        }
+        // if(filteredCsvRecords.length==0) {
+        //   this.utility.showToastMsg("error", "Exist Email", "All emails are already exist!");
+        //   return;
+        // }
 
-        this.isApiInProcess = true;
-        const apiBody = { excelJson: JSON.stringify(filteredCsvRecords) };
-        this.apiSubscription1 = this.apiService.addMultiOpenLeadAPI(apiBody).subscribe({
-          next: (res:any) => {
-            this.onDismissModal();
-            this.isApiInProcess = false;
-            this.eventService.onCompleteInsertion.next("Inserted");
-            this.utility.showToastMsg("success", "SUCCESS", "Leads are inserted successfully!");
-          }, error: (err:any) => { console.log(err); }
+        this.checkEmailAvailability(csvRecords, (filteredCsvRecords:any[]) => {
+          if(filteredCsvRecords.length>0) {
+            this.isApiInProcess = true;
+            const apiBody = { excelJson: JSON.stringify(filteredCsvRecords) };
+            this.apiSubscription1 = this.apiService.addMultiOpenLeadAPI(apiBody).subscribe({
+              next: (res:any) => {
+                this.onDismissModal();
+                this.isApiInProcess = false;
+                this.eventService.onCompleteInsertion.next("Inserted");
+                this.utility.showToastMsg("success", "SUCCESS", "Leads are inserted successfully!");
+              }, error: (err:any) => { console.log(err); }
+            });
+          } else {this.utility.showToastMsg("error", "Exist Email", "All emails are already exist!");}
         });
       } else console.log(err);
+    });
+  }
+
+  checkEmailAvailability(csvDataList:any[], callBack:Function) {
+    this.apiSubscription2 = this.apiService.getAllEmailsListAPI().subscribe({
+      next: (res:any) => {
+        if(!res?.error) {
+          this.isApiInProcess = true;
+          const emailList:any = [];
+          const allExistEmails = res?.result;
+          const arrLen = allExistEmails.length;
+
+          for(let i=0; i<arrLen; i++) { emailList.push(allExistEmails[i]["email"]); }
+
+          const filteredRecords = csvDataList.filter((item:any) => !emailList.includes(item["email"]));
+
+          callBack(filteredRecords);
+        }
+      }
     });
   }
 
   ngOnDestroy(): void {
     this.eventSubscription1.unsubscribe();
     this.apiSubscription1.unsubscribe();
+    this.apiSubscription2.unsubscribe();
   }
 }

@@ -216,7 +216,6 @@ export class LeadEditComponent implements OnDestroy, OnInit {
   }
 
   addToFollowupLead() {
-    debugger
     const tempDate = this.utility.createTimeFormat(this.dateTime);
     // this.excelModelVal.lastFollow = this.leadData["next_followup"];
     this.excelModelVal.nextFollow = tempDate;

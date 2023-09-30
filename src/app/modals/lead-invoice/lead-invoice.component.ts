@@ -55,6 +55,7 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
   gstNum:string = "";
   emailArr:string[] = [];
   email:string = "";
+  phone:string = "";
   tableData = {
     duration: "",
     hsnCode: 998371,
@@ -74,6 +75,7 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
   };
 
   isMailNeeded:string = "no";
+  portalDataType:string = "online";
   attachmentType:string[] = ["none"];
   
   isSameAdd:boolean = false;
@@ -121,18 +123,20 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
   }
 
   onBindUserData(userData:any) {
-    const {address, gst_num, email, company_name, name, performa_num, leadid, plan_price} = userData;
+    const {address, gst_num, email, company_name, name, performa_num, leadid, plan_price, contact, assigned_from, assigned_id} = userData;
     this.doesUserBelongToDelhi = (address.toLowerCase()).includes("delhi");
     this.address.billing.line1 = address;
     this.leadId = leadid;
     this.gstNum = gst_num;
     this.emailArr = email.split(",");
     this.email = this.emailArr[0];
+    this.phone = contact.split(",")[0];
     this.companyName = company_name;
     this.userName = name;
     this.userData = {...userData};
     this.orderNum = performa_num;
     this.tableData.rate = plan_price;
+    this.issuedBy = assigned_id;
 
     this.doesUserBelongToDelhi = this.gstNum.substring(0, 2)=="07";
     this.onCalculateTax();
@@ -157,7 +161,7 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
     this.tableData.gstAmt.igst = ((Number(this.tableData.rate) * igst) / 100)*this.tableData.qty;
   }
 
-  onSubmit() {
+  onSubmit(submittedBy="invoice") {
     if(this.currentStage=="tax") {
       this.onDismissModal();
       return;
@@ -169,32 +173,9 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
       this.onDismissModal();
     };
     this.isApiInProcess = true;
-    const {cgst, sgst, igst} = this.tableData.gst;
-    const apiBody = {
-      leadId: this.leadId,
-      userId: this.userData?.user_id,
-      planName: this.userData?.plan_name,
-      invoiceDate: this.invoiceDate,
-      address: [this.address.shipping, this.address.billing],
-      taxNum: this.taxNum,
-      performaNum: this.orderNum,
-      issuedBy: Number(this.issuedBy),
-      reportName: this.selectedReport,
-      duration: this.tableData.duration,
-      hsnSac: this.tableData.hsnCode,
-      qty: this.tableData.qty,
-      unit: this.tableData.unit,
-      amount: [this.tableData.rate, this.tableData.amount],
-      taxAmt: this.tableData.taxable,
-      gstTax: {cgst, sgst, igst},
-      bankData: JSON.stringify(this.bankDetails),
-      isEmailSent: this.isMailNeeded=="yes",
-      attachment: this.attachmentType,
-      paymentStatus: this.paymentStatus.toString()
-    };
+    const apiBody = this.setAllRequiredValues();
 
-    const emailObj:any = {userData:this.userData, hasAttachement:this.attachmentType[0]!="none" };
-    if(emailObj.hasAttachement) emailObj["isProformaFile"] = !this.attachmentType.includes("tax");    
+    const emailObj:any = {userData:apiBody, hasAttachement: this.attachmentType[0] };
 
     this.apiSubscription1 = this.apiService.addTaxInvoiceLeadAPI(apiBody).subscribe({
       next: (res1:any) => {
@@ -205,12 +186,15 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
               if(!res2.error) {
 
                 if(this.isMailNeeded=="yes") {
-                  this.apiSubscription3 = this.apiService.sendInvoiceEmailAPI(emailObj).subscribe({
-                    next: (res3:any) => {
-                      if(!res3.error) finalStep("Proforma Invoice has been updated to Tax Invoice and Email has been sent successfully.");
-                      else this.utility.showToastMsg("error", "ERROR", res3.msg);
-                    }, error: (err:any) => console.log(err)
-                  });
+                  if(submittedBy=="invoice") {
+                    this.apiSubscription3 = this.apiService.sendInvoiceEmailAPI(emailObj).subscribe({
+                      next: (res3:any) => {
+                        if(!res3.error) finalStep("Proforma Invoice has been updated to Tax Invoice and Email has been sent successfully.");
+                        else this.utility.showToastMsg("error", "ERROR", res3.msg);
+                      }, error: (err:any) => console.log(err)
+                    });
+                  } else finalStep("Tax Invoice has been updated.");
+                  
                 } else finalStep("Proforma Invoice has been updated to Tax Invoice.");
 
               } else this.utility.showToastMsg("error", "ERROR", res2.msg);
@@ -218,6 +202,25 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
           });
 
         } else this.callback.emit(false);
+      }, error: (err:any) => console.log(err)
+    });
+  }
+
+  onSendEmail() {
+    const apiBody = this.setAllRequiredValues();
+    const emailObj:any = {userData:apiBody, hasAttachement: this.attachmentType[0] };
+    this.isApiInProcess = true;
+
+    this.apiSubscription3 = this.apiService.sendTaxInvoiceEmailAPI(emailObj).subscribe({
+      next: (res:any) => {
+        if(!res.error) {
+          this.isApiInProcess = false;
+          this.utility.showToastMsg("success", "SUCCESS", "Tax Invoice has been sent successfully!");
+          this.onDismissModal();
+        } else {
+          this.isApiInProcess = false;
+          this.utility.showToastMsg("error", "ERROR", res.msg);
+        }
       }, error: (err:any) => console.log(err)
     });
   }
@@ -276,7 +279,7 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
   }
 
   onBindRestoredData(dataObj:any) {
-    const {shipping_add, billing_add, email, CGST_taxPer, SGST_taxPer, IGST_taxPer, company_name, name, gst_num} = dataObj;
+    const {shipping_add, billing_add, email, contact, CGST_taxPer, SGST_taxPer, IGST_taxPer, company_name, name, gst_num} = dataObj;
     const {bankName, branch, accountNo, ifsc} = JSON.parse(dataObj["bank_data"]);
     this.selectedReport = dataObj["report_name"];
     this.tableData.duration = dataObj["duration"];
@@ -292,6 +295,7 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
     this.userName = name;
     this.gstNum = gst_num;
     this.email = email;
+    this.phone = contact.split(",")[0];
     this.issuedBy = dataObj["issued_by"];
     this.address.billing = {line1: (billing_add).split("~")[0], line2: (billing_add).split("~")[1]};
     this.doesUserBelongToDelhi = this.gstNum.substring(0, 2)=="07";
@@ -304,6 +308,41 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
       this.address.shipping = {line1: (shipping_add).split("~")[0], line2: (shipping_add).split("~")[1]};
     }
     this.onCalculateTax();
+  }
+
+
+  setAllRequiredValues():any {
+    const {cgst, sgst, igst} = this.tableData.gst;
+    const {cgst:cgstAmt, sgst:sgstAmt, igst:igstAmt} = this.tableData.gstAmt;
+    return {
+      leadId: this.leadId,
+      userId: this.userData?.user_id,
+      planName: this.userData?.plan_name,
+      invoiceDate: this.invoiceDate,
+      address: [this.address.shipping, this.address.billing],
+      taxNum: this.taxNum,
+      performaNum: this.orderNum,
+      issuedBy: this.issuedBy,
+      reportName: this.selectedReport,
+      duration: this.tableData.duration,
+      hsnSac: this.tableData.hsnCode,
+      qty: this.tableData.qty,
+      unit: this.tableData.unit,
+      amount: [this.tableData.rate, this.tableData.amount],
+      taxAmt: this.tableData.taxable,
+      gstTax: {cgst, sgst, igst},
+      gstAmt: {cgstAmt, sgstAmt, igstAmt},
+      bankData: JSON.stringify(this.bankDetails),
+      isEmailSent: this.isMailNeeded=="yes",
+      attachment: this.attachmentType,
+      paymentStatus: this.paymentStatus.toString(),
+      dataType: this.portalDataType,
+      clientName: this.userName,
+      companyName: this.companyName,
+      gstNumber: this.gstNum,
+      clientEmail: this.email,
+      clientPhone: this.phone
+    };
   }
 }
 

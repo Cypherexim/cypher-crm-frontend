@@ -73,7 +73,7 @@
                 <textarea  rows="5" class="w-full" [(ngModel)]="excelModelVal.remark" pInputTextarea [autoResize]="false"></textarea>
             </div>
 
-            <div class="submitBtn text-center mb-4"><button pButton pRipple [label]="isSubmitClicked?'Submitting...':'Submit'" class="p-button-success" (click)="onClickUpdate()"></button></div>
+            <div class="submitBtn text-center mb-4"><button pButton pRipple [label]="isSubmitClicked?'Submitting...':'Submit'" [disabled]="isSubmitClicked" class="p-button-success" (click)="onClickUpdate()"></button></div>
         </div>
 
         <div class="lead-description overflow-auto" *ngIf="isNotEditMode">
@@ -200,7 +200,7 @@
                     <textarea rows="3" class="w-full remarkBox" pInputTextarea [autoResize]="false" [(ngModel)]="updatedRemark"></textarea>
                 </div>
 
-                <button *ngIf="currentLeadStatus!=currentLeadPage" pButton pRipple [label]="isSubmitClicked?'Submitting...':'Submit'" class="p-button-success" (click)="onSubmitLead()"></button>
+                <button *ngIf="currentLeadStatus!=currentLeadPage" pButton pRipple [label]="isSubmitClicked?'Submitting...':'Submit'" [disabled]="isSubmitClicked" class="p-button-success" (click)="onSubmitLead()"></button>
                 <button *ngIf="currentLeadStatus==currentLeadPage" pButton pRipple [label]="isSubmitClicked?'Updating...':'Update'" class="p-button-danger" (click)="onUpdateLead()"></button>
             </div>
         </div>

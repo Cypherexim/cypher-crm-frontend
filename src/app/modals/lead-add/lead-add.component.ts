@@ -46,41 +46,66 @@ export class LeadAddComponent implements OnInit, OnDestroy {
     if(this.onValidateFields()) {
       this.isBtnClicked = true;
 
+      // const emailExcludeParams = ["na", "NA", "N/A", "n/a", ""];
+
+      // if(!emailExcludeParams.includes(this.addLeadValues.email) && this.existingEmails.includes(this.addLeadValues.email)) {
+      //   this.isBtnClicked = false;
+      //   this.utility.showToastMsg("error", "Email Exist", "Email is already exist!");
+      //   return;
+      // }
+
       this.addLeadValues.email = this.addLeadValues.email.toLowerCase();
-      if(this.existingEmails.includes(this.addLeadValues.email)) {
-        this.isBtnClicked = false;
-        this.utility.showToastMsg("error", "Email Exist", "Email is already exist!");
-        return;
-      }
-  
-      this.addLeadValues.currentStage = "open";
-      this.addLeadValues.userId = this.utility.fetchUserSingleDetail("id");
-      this.addLeadValues.transTime = this.utility.createTimeFormat();
-  
-      this.apiSubscription = this.apiService.addSingleOpenLeadAPI(this.addLeadValues).subscribe({
+      this.getEmailExistanceChecked(this.addLeadValues.email, (emailFlag:string) => {
+        if(emailFlag == "NOT EXIST") this.onAddingFreshLead();
+        else {
+          this.isBtnClicked = false;
+          this.utility.showToastMsg("error", "Email Exist", "Email is already exist!");
+          return;
+        }
+      });      
+    }
+  }
+
+  getEmailExistanceChecked(email:string, callback:Function) {
+    const emailExcludeParams = ["na", "NA", "N/A", "n/a", ""];
+
+    if(emailExcludeParams.includes(email)) callback("NOT EXIST");
+    else {
+      this.apiService.getEmailExistanceAPI(email).subscribe({
         next: (res:any) => {
-          if(!res?.err) {
-            console.log(res?.msg);
-            this.isBtnClicked = false;
-            this.onDismissModal();
-            this.eventService.onCompleteInsertion.next("Inserted");
-            this.utility.showToastMsg("success", "SUCCESS", "Leads are inserted successfully!");
-          }
-        },
-        error: (err:any) => {console.log(err)}
+          if(!res?.error) callback(res?.flag);
+        }, error: (err:any) => console.log(err)
       });
     }
   }
 
+  onAddingFreshLead() {
+    this.addLeadValues.currentStage = "open";
+    this.addLeadValues.userId = this.utility.fetchUserSingleDetail("id");
+    this.addLeadValues.transTime = this.utility.createTimeFormat();
+
+    this.apiSubscription = this.apiService.addSingleOpenLeadAPI(this.addLeadValues).subscribe({
+      next: (res:any) => {
+        if(!res?.err) {
+          console.log(res?.msg);
+          this.isBtnClicked = false;
+          this.onDismissModal();
+          this.eventService.onCompleteInsertion.next("Inserted");
+          this.utility.showToastMsg("success", "SUCCESS", "Leads are inserted successfully!");
+        }
+      },
+      error: (err:any) => {console.log(err)}
+    });
+  }
 
   onValidateFields():boolean {
     const objKeys = ["username", "company", "email", "contact", "remark", "source"];  
     this.removeAllErrors(objKeys);
 
     for(let i=0; i<objKeys.length; i++) {
-      if(objKeys[i] == "username" && this.addLeadValues.username=="") this.addClassName("username");
-      else if(objKeys[i] == "company" && this.addLeadValues.company=="") this.addClassName("company");
-      else if(objKeys[i] == "remark" && this.addLeadValues.remark=="") this.addClassName("remark");
+      // if(objKeys[i] == "username" && this.addLeadValues.username=="") this.addClassName("username");
+      if(objKeys[i] == "company" && this.addLeadValues.company=="") this.addClassName("company");
+      // else if(objKeys[i] == "remark" && this.addLeadValues.remark=="") this.addClassName("remark");
       else if(objKeys[i] == "source") {
         if(this.addLeadValues.source=="") this.addClassName("source");
         else if(this.addLeadValues.source=="reference") {

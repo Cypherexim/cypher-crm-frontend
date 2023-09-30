@@ -126,6 +126,21 @@
                         <option value="full">Fully Paid</option>
                     </select>
                 </div>
+                
+                <div class="check-fields flex align-items-center mb-3">
+                    <span>Portal Data Type:</span>
+                    <div class="radios flex align-items-center ml-3">
+                        <div class="radio flex align-items-center mr-1">
+                            <p-radioButton name="mail" value="online" [(ngModel)]="portalDataType" inputId="dataType1"></p-radioButton>
+                            <label for="dataType1" class="ml-2">Online</label>
+                        </div>
+                        <div class="radio flex align-items-center">
+                            <p-radioButton name="mail" value="offline" [(ngModel)]="portalDataType" inputId="dataType2"></p-radioButton>
+                            <label for="dataType2" class="ml-2">Offline</label>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="check-fields flex align-items-center mb-3">
                     <span>Do you want to send mail to client?</span>
                     <div class="radios flex align-items-center ml-3">
@@ -141,7 +156,7 @@
                 </div>
     
                 <div class="attachment" *ngIf="isMailNeeded=='yes'">
-                    <span>What type of attachement you need to attach with mail?</span>
+                    <span>What type of attachement you need for mail?</span>
                     <div class=" mt-2">
                         <div class="flex align-items-center gap-1" *ngFor="let item of checkboxesOptions;let i=index">
                             <p-checkbox value="{{item.val}}" (click)="onSetAttachment(item.val)" [(ngModel)]="attachmentType" inputId="input-{{i}}"></p-checkbox>
@@ -153,9 +168,9 @@
         </div>
     
         <div class="submit-btn w-full text-right absolute bg-white bottom-0">
-            <button pButton pRipple label="PDF" title="Download PDF" class="p-button-danger mr-2" (click)="onDismissModal()" *ngIf="currentStage=='tax'"></button>
-            <button pButton pRipple label="Email" title="Update with Email" class="p-button-primary mr-2" (click)="onDismissModal()" *ngIf="currentStage=='tax'"></button>
-            <button pButton pRipple label="{{currentStage=='tax'?'Update':'Submit'}}" class="p-button-success mr-2" (click)="onSubmit()"></button>
+            <button pButton pRipple label="Print" title="Print Tax Invoice" class="p-button-danger mr-2" (click)="onDismissModal()" *ngIf="currentStage=='tax'"></button>
+            <button pButton pRipple label="Email" title="Send Tax Invoice" class="p-button-primary mr-2" (click)="onSendEmail()" *ngIf="currentStage=='tax'"></button>
+            <button pButton pRipple label="{{currentStage=='tax'?'Update':'Submit'}}" class="p-button-success mr-2" (click)="onSubmit('tax')"></button>
             <button pButton pRipple label="Cancel" class="p-button-secondary" (click)="onDismissModal()"></button>
         </div>
     

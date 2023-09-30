@@ -143,7 +143,19 @@ export class ApiService {
     return this.http.get(`${environment.apiurl}/getSingleCompany?leadId=${id}`);
   }
 
+  getEmailExistanceAPI(email:string) {
+    return this.http.get(`${environment.apiurl}/getEmailExistanceResponse?email=${email}`);
+  }
+
+  getAllEmailsListAPI() {
+    return this.http.get(`${environment.apiurl}/getAllEmailsList`);
+  }
+
   sendInvoiceEmailAPI(apiObj:any) {
-    return this.http.post(`${environment.apiurl}/sendEmail`, apiObj);
+    return this.http.post(`${environment.apiurl}/user/sendEmail`, apiObj);
+  }
+
+  sendTaxInvoiceEmailAPI(apiObj:any) {
+    return this.http.post(`${environment.apiurl}/user/sendTaxInvoiceEmail`, apiObj);
   }
 }
