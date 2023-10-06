@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { UtilitiesService } from './utilities.service';
 import { CSVModel } from 'src/app/models/excelModel';
+import { DatePipe } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +9,8 @@ import { CSVModel } from 'src/app/models/excelModel';
 export class CsvParserService {
 
   constructor(
-    private utility: UtilitiesService
+    private utility: UtilitiesService,
+    private datePipe: DatePipe
   ) { }
 
   convertIntoJson(fileInp: any, callback: Function) {
@@ -43,6 +45,7 @@ export class CsvParserService {
 
   async getDataRecordsArrayFromCSVFile(csvRecordsArray: any, headerLength: any) {
     const csvArr: any[] = [];
+    const currentDate = new Date();
 
     for (let i = 1; i < csvRecordsArray.length; i++) {
       const modifiedCellVal = await this.getModifiedVal((<string>csvRecordsArray[i]));
@@ -64,6 +67,7 @@ export class CsvParserService {
         csvRecord.pan = curruntRecord[10].trim();
         csvRecord.iec = curruntRecord[11].trim();
         csvRecord.userId = this.utility.fetchUserSingleDetail("id");
+        csvRecord.lastFollow = `${this.datePipe.transform(currentDate, "yyyy-MM-dd HH:mm:ss")}`;
 
         csvArr.push(csvRecord);
       }

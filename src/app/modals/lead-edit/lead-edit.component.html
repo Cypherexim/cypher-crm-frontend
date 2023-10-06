@@ -163,7 +163,7 @@
 
                 <div *ngIf="currentLeadStatus=='close'"></div>
 
-                <div *ngIf="currentLeadStatus=='pricing'">
+                <div *ngIf="currentLeadStatus=='price'">
                     <div class="input-field flex flex-column">
                         <span class="label mb-2">Assign To<span class="imp">*</span></span>
                         <select class="w-full assignTo" [(ngModel)]="assignedUser">
@@ -196,7 +196,7 @@
                 </div>
 
                 <div class="input-field flex flex-column">
-                    <span class="label">{{currentLeadStatus=='pricing' ?'Suggestion' :'Remark'}}<span class="imp">*</span></span>
+                    <span class="label">{{currentLeadStatus=='price' ?'Suggestion' :'Remark'}}<span class="imp">*</span></span>
                     <textarea rows="3" class="w-full remarkBox" pInputTextarea [autoResize]="false" [(ngModel)]="updatedRemark"></textarea>
                 </div>
 

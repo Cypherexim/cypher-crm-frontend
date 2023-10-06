@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subscription } from 'rxjs';
@@ -16,7 +17,8 @@ export class LeadAddComponent implements OnInit, OnDestroy {
     private activeModal: NgbActiveModal,
     private apiService: ApiService,
     private utility: UtilitiesService,
-    private eventService: EventsService
+    private eventService: EventsService,
+    private datePipe: DatePipe
   ) {}
  
   sourceList:string[] = ["database", "linkedin", "exhibition", "reference", "website", "online lead"];
@@ -80,9 +82,11 @@ export class LeadAddComponent implements OnInit, OnDestroy {
   }
 
   onAddingFreshLead() {
+    const currentDate = new Date();
     this.addLeadValues.currentStage = "open";
     this.addLeadValues.userId = this.utility.fetchUserSingleDetail("id");
     this.addLeadValues.transTime = this.utility.createTimeFormat();
+    this.addLeadValues.lastFollow = `${this.datePipe.transform(currentDate, "yyyy-MM-dd HH:mm:ss")}`;
 
     this.apiSubscription = this.apiService.addSingleOpenLeadAPI(this.addLeadValues).subscribe({
       next: (res:any) => {

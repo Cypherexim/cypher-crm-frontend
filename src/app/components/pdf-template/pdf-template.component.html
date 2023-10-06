@@ -1,0 +1,240 @@
+<div class="w-full height: 98vh;">
+    <div class="main-container" style="width: 100%;height: 100%;">
+        <div class="header" style="width: 97%;margin: auto; height: 13%;padding-top: 5%;">
+            <table style="width: 100%;">
+                <tr>
+                    <td>
+                        <div class="logo">
+                            <img src="assets/images/Eximine.png" alt="" />
+                            <div class="pan"
+                                style="font-size: 13.5px;letter-spacing: 0.5px;font-weight: 500;font-family: sans-serif;">
+                                PAN NO:- AAGCE4130J</div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="address" style="margin-bottom: -10px;width: fit-content;float: right">
+                            <div class="company"
+                                style="font-weight: 600;font-family: sans-serif;letter-spacing: 0.8px;color: #006d98;margin-bottom: 5px;font-size: 17px;">
+                                EXIMINE PRIVATE LIMITED</div>
+                            <div class="add"
+                                style="font-family: sans-serif;letter-spacing: 0.7px;line-height: 18px;color: #403d3d;font-size: 13px;">
+                                20 & 21, Dwarka Sector-16A,<br />New Delhi-110059</div>
+                            <div class="ph"
+                                style="font-family: sans-serif;letter-spacing: 0.7px;line-height: 18px;color: #403d3d;font-size: 13px;">
+                                Cust.Care:- +911145536444</div>
+                            <div class="mail"
+                                style="font-family: sans-serif;letter-spacing: 0.7px;line-height: 18px;color: #403d3d;font-size: 13px;">
+                                Email:- sales@eximine.com</div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="hr-line" style="width: 97%;margin: auto; height: 2.5px;margin-bottom: 5px;border-bottom: 3px solid gray;border-top: 1px solid gray;"></div>
+        
+        <h2 style="width: 100%;text-align: center;letter-spacing: 1px;font-size: 20px;font-weight: 600;font-family: sans-serif;color: #403d3d;">{{isProformaInvoice? 'Proforma Inovice': 'Invoice'}}</h2>
+
+        <div class="gstin" style="margin: auto; margin-bottom: 10px;width: 97%;">
+            <table style="width: 100%;">
+                <tr>
+                    <td>
+                        <div style="font-size: 12px;letter-spacing: 0.5px;">
+                            <span style="font-weight: bold;margin-right:5px;">GSTIN:</span>07AAGCE41301ZS
+                        </div>
+                    </td>
+                    <td>
+                        <div class="plno" style="font-size: 12px;letter-spacing: 0.5px;width: fit-content;float: right;">
+                            <!-- <div><span style="font-weight: bold;margin-right:5px;">PI No.:</span>{{orderNum}}</div> -->
+                            <div><span style="font-weight: bold;margin-right:5px;">Invoice No.:</span>{{invoiceData?.performaNum}}</div>
+                            <div><span style="font-weight: bold;margin-right:5px;">Date:</span>{{invoiceData?.invoiceDate}}</div>
+                            <!-- <div><span style="font-weight: bold;margin-right:5px;">Valid till:</span>{{issueDate}}</div> -->
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <table style="margin: auto; margin-bottom: 10px;width: 97%;border: 1px solid;border-collapse: collapse;">
+            <thead>
+                <th style="width:50%;text-align:left;border: 1px solid;padding: 3px;font-size: 12px;">Billing Address
+                </th>
+                <th style="width:50%;text-align:left;border: 1px solid;padding: 3px;font-size: 12px;">Shipping Address
+                </th>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="border: 1px solid;padding: 3px;font-size: 12px;">
+                        <div class="td-box">
+                            <div>{{invoiceData?.clientName}}</div>
+                            <div>{{invoiceData?.companyName}}</div>
+                            <div *ngIf="(invoiceData | json) != '{}' && invoiceData?.address[0]">{{invoiceData?.address[0]?.line1}}</div>
+                            <div *ngIf="(invoiceData | json) != '{}' && invoiceData?.address[0]">{{invoiceData?.address[0]?.line2}}</div>
+                            <div>GSTIN:&nbsp;&nbsp;{{invoiceData?.gstNumber}}</div>
+                            <div>Phone:&nbsp;&nbsp;{{invoiceData?.clientPhone}}</div>
+                        </div>
+                    </td>
+                    <td style="border: 1px solid;padding: 3px;font-size: 12px;">
+                        <div class="td-box">
+                            <div>{{invoiceData?.clientName}}</div>
+                            <div>{{invoiceData?.companyName}}</div>
+                            <div *ngIf="(invoiceData | json) != '{}' && invoiceData?.address[1]">{{invoiceData?.address[1]?.line1}}</div>
+                            <div *ngIf="(invoiceData | json) != '{}' && invoiceData?.address[1]">{{invoiceData?.address[1]?.line1}}</div>
+                            <div>GSTIN:&nbsp;&nbsp;{{invoiceData?.gstNumber}}</div>
+                            <div>Phone:&nbsp;&nbsp;{{invoiceData?.clientPhone}}</div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table style="margin: auto; margin-bottom: 10px;width: 97%;border: 1px solid;border-collapse: collapse;">
+            <thead>
+                <th style="border: 1px solid;text-align: left;font-size: 12px;padding: 3px;">No.</th>
+                <th style="border: 1px solid;text-align: left;font-size: 12px;padding: 3px;">Item & Description</th>
+                <th style="border: 1px solid;text-align: left;font-size: 12px;padding: 3px;">HSN/SAC</th>
+                <th style="border: 1px solid;text-align: left;font-size: 12px;padding: 3px;">Qty.</th>
+                <th style="border: 1px solid;text-align: left;font-size: 12px;padding: 3px;">Unit</th>
+                <th style="border: 1px solid;text-align: left;font-size: 12px;padding: 3px;">Rate (₹)</th>
+                <th style="border: 1px solid;text-align: left;font-size: 12px;padding: 3px;">Taxable (₹)</th>
+                <th style="border: 1px solid;text-align: left;font-size: 12px;padding: 3px;" *ngIf="isUserFromDelhi">CGST</th>
+                <th style="border: 1px solid;text-align: left;font-size: 12px;padding: 3px;" *ngIf="isUserFromDelhi">SGST</th>
+                <th style="border: 1px solid;text-align: left;font-size: 12px;padding: 3px;" *ngIf="!isUserFromDelhi">IGST</th>
+                <th style="border: 1px solid;text-align: left;font-size: 12px;padding: 3px;">Amount (₹)</th>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="border: 1px solid;font-size: 12px;padding: 3px;">1</td>
+                    <td style="border: 1px solid;font-size: 12px;padding: 3px;">
+                        <div>
+                            <div style="font-weight:600;">{{invoiceData?.reportName}}</div>
+                            <div>DURATIONS - {{invoiceData?.duration}}</div>
+                        </div>
+                    </td>
+                    <td style="border: 1px solid;font-size: 12px;padding: 3px;">{{invoiceData?.hsnSac}}</td>
+                    <td style="border: 1px solid;font-size: 12px;padding: 3px;">{{invoiceData?.qty}}</td>
+                    <td style="border: 1px solid;font-size: 12px;padding: 3px;">{{invoiceData?.unit}}</td>
+                    <td *ngIf="(invoiceData | json) != '{}' && invoiceData?.amount[0]" style="border: 1px solid;font-size: 12px;padding: 3px;">{{invoiceData?.amount[0]}}</td>
+                    <td style="border: 1px solid;font-size: 12px;padding: 3px;">{{invoiceData?.taxAmt}}</td>
+                    <td style="border: 1px solid;font-size: 12px;padding: 3px;" *ngIf="isUserFromDelhi">{{invoiceData?.gstAmt?.cgstAmt}}</td>
+                    <td style="border: 1px solid;font-size: 12px;padding: 3px;" *ngIf="isUserFromDelhi">{{invoiceData?.gstAmt?.sgstAmt}}</td>
+                    <td style="border: 1px solid;font-size: 12px;padding: 3px;" *ngIf="!isUserFromDelhi">{{invoiceData?.gstAmt?.igstAmt}}</td>
+                    <td *ngIf="(invoiceData | json) != '{}' && invoiceData?.amount[1]" style="border: 1px solid;font-size: 12px;padding: 3px;">{{invoiceData?.amount[1]}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table style="margin: auto; width: 97%;border: 1px solid;border-collapse: collapse;margin-bottom: 2px;">
+            <tbody>
+                <tr>
+                    <td style="border-right: 1px solid;font-size: 12px;padding: 3px;">Bank Details:</td>
+                    <td style="font-size: 12px;padding: 3px;">Total Proforma Invoice Amount in Words:</td>
+                    <td style="border: 1px solid;font-size: 12px;padding: 3px;">Total Amount before Tax (₹)</td>
+                    <td style="border: 1px solid;font-size: 12px;padding: 3px;" *ngIf="(invoiceData | json) != '{}' && invoiceData?.amount[0]">{{invoiceData?.amount[0]}}</td>
+                </tr>
+                <tr>
+                    <td rowspan="3" style="border-right: 1px solid;font-size: 12px;padding: 3px;">
+                        <div>
+                            <div style="margin-bottom: 2px;">Bank Name:&nbsp;{{invoiceData?.bankData?.bankName}}</div>
+                            <div style="margin-bottom: 2px;">Branch:&nbsp;{{invoiceData?.bankData?.branch}}</div>
+                            <div style="margin-bottom: 2px;">Account No.:&nbsp;{{invoiceData?.bankData?.accountNo}}</div>
+                            <div>IFSC:&nbsp;{{invoiceData?.bankData?.ifsc}}</div>
+                        </div>
+                    </td>
+                    <td style="font-size: 12px;padding: 3px;">
+                        <span style="font-weight: 600;">{{invoiceData?.amoutInStr}} Only</span>
+                    </td>
+                    <td style="border: 1px solid;font-size: 12px;padding: 3px;">{{isUserFromDelhi? 'Add CGST (₹)': ''}}</td>
+                    <td style="border: 1px solid;font-size: 12px;padding: 3px;">{{isUserFromDelhi? invoiceData?.gstAmt?.cgstAmt: ''}}</td>
+                </tr>
+                <tr *ngIf="isUserFromDelhi">
+                    <td rowspan="2"></td>
+                    <td style="border: 1px solid;font-size: 12px;padding: 3px;">Add SGST (₹)</td>
+                    <td style="border: 1px solid;font-size: 12px;padding: 3px;">{{invoiceData?.gstAmt?.sgstAmt}}</td>
+                </tr>
+                <tr *ngIf="!isUserFromDelhi">
+                    <td rowspan="2"></td>
+                    <td style="border: 1px solid;font-size: 12px;padding: 3px;">Add IGST (₹)</td>
+                    <td style="border: 1px solid;font-size: 12px;padding: 3px;">{{invoiceData?.gstAmt?.igstAmt}}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid;font-size: 12px;padding: 3px;font-weight: 600;">Grand Total (₹)</td>
+                    <td *ngIf="(invoiceData | json) != '{}' && invoiceData?.amount[1]" style="border: 1px solid;font-size: 12px;padding: 3px;">{{invoiceData?.amount[1]}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table style="margin: auto; width: 97%;border: 1px solid;margin-bottom: 2px;">
+            <tbody>
+                <tr>
+                    <td style="font-size: 12px;padding: 3px;font-weight: 600;">Terms & Conditions:</td>
+                </tr>
+                <tr>
+                    <td style="font-size: 12px;padding: 3px;">&#x2022; Note: 1. Please make Cheque in favor of "EXIMINE
+                        PRIVATE LIMITED".&nbsp;&nbsp;2. Online Payment is also available.&nbsp;&nbsp;3. Validity of the
+                        invoice is 21 Days.&nbsp;&nbsp;4. TDS reduction 2%.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table style="margin: auto; width: 97%;border: 1px solid;border-collapse: collapse;margin-bottom: 10px;">
+            <tbody>
+                <tr>
+                    <td rowspan="2" style="border-right: 1px solid;"></td>
+                    <td
+                        style="font-size: 12px;padding: 3px;width: 30%;text-align: center;padding-bottom: 30px;position: relative;">
+                        <!-- <img style="position: absolute;width: 130px;top: 15%;opacity: 0.95;" src="{{stampImg}}" alt="" /> -->
+                        For, Eximine Pvt. Ltd.
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td style="padding: 3px;border-right: 1px solid;">
+                        <div style="font-size: 12px;">
+                            <table style="width: 100%;">
+                                <tr>
+                                    <td style="width: 80%;">
+                                        <span style="font-size: 12px;">This is a computer-generated proforma invoice.</span>
+                                    </td>
+                                    <td style="width: 20%;">
+                                        <div style="text-align: right;font-size: 12px;">E. & O. E</div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>
+                    <td style="font-weight: 600;font-size: 12px;padding: 3px;width: 30%;text-align: center;">Authorised Signatory</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div style="margin: auto; width: 97%;">
+            <table style="width: 50%;border: 1px solid;border-collapse: collapse;">
+                <thead>
+                    <th style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;">HSN/SAC Code</th>
+                    <th style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;">Taxable (₹)</th>
+                    <th style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;" *ngIf="isUserFromDelhi">CGST %</th>
+                    <th style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;" *ngIf="isUserFromDelhi">CGST (₹)</th>
+                    <th style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;" *ngIf="isUserFromDelhi">SGST %</th>
+                    <th style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;" *ngIf="isUserFromDelhi">SGST (₹)</th>
+                    <th style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;" *ngIf="!isUserFromDelhi">IGST %</th>
+                    <th style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;" *ngIf="!isUserFromDelhi">IGST (₹)</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;">{{invoiceData?.hsnSac}}</td>
+                        <td style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;">{{invoiceData?.taxAmt}}</td>
+                        <td style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;" *ngIf="isUserFromDelhi">{{invoiceData?.gstTax?.cgst}}</td>
+                        <td style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;" *ngIf="isUserFromDelhi">{{invoiceData?.gstAmt?.cgstAmt}}</td>
+                        <td style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;" *ngIf="isUserFromDelhi">{{invoiceData?.gstTax?.sgst}}</td>
+                        <td style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;" *ngIf="isUserFromDelhi">{{invoiceData?.gstAmt?.sgstAmt}}</td>
+                        <td style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;" *ngIf="!isUserFromDelhi">{{invoiceData?.gstTax?.igst}}</td>
+                        <td style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;" *ngIf="!isUserFromDelhi">{{invoiceData?.gstAmt?.igstAmt}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

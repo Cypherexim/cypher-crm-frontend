@@ -4,7 +4,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { LeadEditComponent } from 'src/app/modals/lead-edit/lead-edit.component';
 import { Subscription } from 'rxjs';
-import { LeadModel } from 'src/app/models/leadModel';
+import { LeadModel, PageEvent, infoModalProformaKeyVal, infoModalStatusKeyVal, infoModalTaxKeyVal } from 'src/app/models/leadModel';
 import { EllipsisPipe } from 'src/app/common/ellipsis.pipe';
 import { CSVModel } from 'src/app/models/excelModel';
 import { LeadInvoiceComponent } from 'src/app/modals/lead-invoice/lead-invoice.component';
@@ -27,7 +27,7 @@ export class LeadComponent implements OnInit, OnDestroy {
     private datepipe: DatePipe,
     private titlecasepipe: TitleCasePipe,
     private ellipsespipe: EllipsisPipe,
-    private eventService: EventsService
+    private eventService: EventsService,
   ) { this.urlDetectionEvent(); }
 
   apiSubscription1:Subscription = new Subscription();
@@ -36,6 +36,7 @@ export class LeadComponent implements OnInit, OnDestroy {
   eventSubscription1:Subscription = new Subscription();
   eventSubscription2:Subscription = new Subscription();
   eventSubscription3:Subscription = new Subscription();
+  eventSubscription:any;
 
   
   leadData:any = {};
@@ -47,17 +48,24 @@ export class LeadComponent implements OnInit, OnDestroy {
   taxNum:string = "";
   piNum:number = 0;
   tdModalType:string = "last_followup";
+  tableHeadCheckBox:string[] = ["email", "company_name", "contact"];
+  copyItems:any = {};
   
   leadList:any[] = [];
   copyLeadList:any[] = [];
 
   visibleDialogue:boolean = false;
   visibleDialogue2:boolean = false;
+  visibleDialogue3:boolean = false;
   followUpHistory:any[] = [];
-  
+
+  singleItemData:any = {};
+  itemObjKeys:string[] = [];
+
   conditionalStages:string[] = ["status"];
   titleCondition:string[] = ["tax", "invoice"];
   sourceList:string[] = ["database", "linkedin", "exhibition", "reference", "website", "online lead"];
+  remarkList:string[] = ["sample", "demo", "ringing", "pricing", "fresh", "call back", "already taken", "not connect"];
   errorTypes:any[] = ["", "null", null, "undefined", undefined];
   popupTitles:any = {
     last_followup: "Last Follow-ups",
@@ -65,15 +73,34 @@ export class LeadComponent implements OnInit, OnDestroy {
     email: "Email List"
   };
 
+  first: number = 0;
+  rows: number = 15;
+
+  onPageChange(event: PageEvent) {
+    this.first = event.first;
+    this.rows = event.rows;
+    this.paginateTableData(event);
+  }
+
+  paginateTableData(paginatorData:any={}) {
+    const copyTempData = JSON.parse(JSON.stringify(this.leadList));
+    if(Object.keys(paginatorData).length>0) {
+      const {first, rows} = paginatorData;
+      this.copyLeadList = copyTempData.splice(first, rows);
+    } else {this.copyLeadList = copyTempData.splice(0, this.rows); this.first=0;}
+  }
 
   urlDetectionEvent() {
     this.eventSubscription1 = this.router.events.subscribe((res:any) => {
       if(res instanceof NavigationEnd) { 
         this.currentStage = this.route.snapshot.paramMap.get("stage") || "";
+        // this.currentStage = this.currentStage=="price"?"pricing":this.currentStage;
+
         this.tableHeads = new LeadModel().getCurrentKeys(this.currentStage);
 
         if(this.apiSubscription1) this.apiSubscription1.unsubscribe();
-        this.getAllOpenLeads(this.currentStage);
+        // this.getAllOpenLeads(this.currentStage);
+        this.refreshPage();
       }
     }); 
   }
@@ -96,7 +123,14 @@ export class LeadComponent implements OnInit, OnDestroy {
     this.apiSubscription1.unsubscribe();
     this.apiSubscription2.unsubscribe();
     this.apiSubscription3.unsubscribe();
+    window.matchMedia('print').removeEventListener("change", this.eventSubscription);
   }
+
+  onClickPrint() {
+    this.eventService.onPassPrintCommand.next(true);
+    window.print();
+  }
+
 
   fetchInvoiceNumber() {
     this.apiSubscription1 = this.apiService.getInvoiceNumAPI().subscribe({
@@ -131,7 +165,8 @@ export class LeadComponent implements OnInit, OnDestroy {
     this.apiSubscription1 = (leadTypeAPI[stageType]).subscribe({
       next: (res:any) => {
         this.leadList = res?.result;
-        this.copyLeadList = res?.result;
+        // this.copyLeadList = res?.result;
+        this.paginateTableData();
         this.isApiInProcess = false;
         
         if(stageType=="open") {
@@ -155,29 +190,37 @@ export class LeadComponent implements OnInit, OnDestroy {
       const parsedJSON = JSON.parse(leadData);
       this.leadList.push({...dataList[i], ...parsedJSON});
     }
-    this.copyLeadList = JSON.parse(JSON.stringify(this.leadList));
+    // this.copyLeadList = JSON.parse(JSON.stringify(this.leadList));
+    this.paginateTableData();
   }
 
   setTableValues(data:any, key:string) {
     const dateKeys = ["last_followup", "next_followup", "transaction_time", "demo_time", "invoice_date"];
 
-    if(this.errorTypes.includes(data[key])) return "N/A";
-    else if(dateKeys.includes(key)) {
-      const dateTime = (data[key]).replace(new RegExp("NaN", "g"), "00");
-      return this.datepipe.transform(dateTime, key=="invoice_date"?"MMM d, y":"MMM d, y, h:mm:ss a");
+    // if(this.errorTypes.includes(data[key])) return "N/A";
+    if(dateKeys.includes(key)) {
+      if(this.errorTypes.includes(data[key])) return "";
+      else {
+        const dateTime = (data[key]).replace(new RegExp("NaN", "g"), "00");
+        return this.datepipe.transform(dateTime, key=="invoice_date"?"MMM d, y":"MMM d, y, h:mm:ss a");
+      }
     }
+    else if(this.errorTypes.includes(data[key])) return "N/A";
     else if(["email", "contact", "address"].includes(key)) {
       const modifiedStr = (<string>data[key]).replace(new RegExp(",", "g"), ", ");
       if(["email", "contact"].includes(key)) return this.toTitleCase(this.titlecasepipe.transform(modifiedStr.split(",")[0]));
       return this.titlecasepipe.transform(modifiedStr);
-    } else if(key == "remarks") return this.ellipsespipe.transform(data[key], 35);
-    else if(key == "assigned_from") return this.toTitleCase(this.utility.fetchUserSingleDetail("id")==data["assigend_from_id"] ? "self" : data[key]);
+    } 
+    else if(key == "remarks") return this.ellipsespipe.transform(data[key], 35);
+    else if(key == "assigned_from") return this.toTitleCase(this.utility.fetchUserSingleDetail("id")==data["assigned_from_id"] ? "self" : data[key]);
     else return data[key]=="N/A" ? data[key] : this.titlecasepipe.transform(`${data[key]}`);
   }
 
   refreshPage() {
     const selectTag = document.getElementById("sourceId") as HTMLSelectElement;
+    const selectTag2 = document.getElementById("sourceId2") as HTMLSelectElement;
     if(selectTag) selectTag.value = "";
+    if(selectTag2) selectTag2.value = "";
     this.getAllOpenLeads(this.currentStage);
   }
 
@@ -204,6 +247,13 @@ export class LeadComponent implements OnInit, OnDestroy {
     (<LeadInvoiceComponent>modalRef.componentInstance).isAddPI = true;
     (<LeadInvoiceComponent>modalRef.componentInstance).taxNum = this.taxNum;
     (<LeadInvoiceComponent>modalRef.componentInstance).orderNum = this.piNum;
+    const modalSubscription = (<LeadInvoiceComponent>modalRef.componentInstance).printCallback.subscribe({
+      next: (res:any) => { 
+        if(res) window.print();
+        setTimeout(() => this.eventService.onPassPrintCommand.next(false), 1000); 
+        modalSubscription.unsubscribe();
+      }, error: (err:any) => console.log(err)
+    });
   }
 
   openInvoiceModal(itemData:any) {
@@ -214,6 +264,15 @@ export class LeadComponent implements OnInit, OnDestroy {
       (<LeadInvoiceComponent>modalRef.componentInstance).onBindUserData(itemData);
       (<LeadInvoiceComponent>modalRef.componentInstance).taxNum = `${suffixPiNum}EPL${this.taxNum}`;
     } else (<LeadInvoiceComponent>modalRef.componentInstance).onBindRestoredData(itemData);
+      
+    const modalSubscription = (<LeadInvoiceComponent>modalRef.componentInstance).printCallback.subscribe({
+      next: (res:any) => { 
+        if(res) window.print();
+        setTimeout(() => this.eventService.onPassPrintCommand.next(false), 1000); 
+        modalSubscription.unsubscribe();
+      }, error: (err:any) => console.log(err)
+    });
+    
 
     const modalSubs = (<LeadInvoiceComponent>modalRef.componentInstance).callback.subscribe({
       next: (res:any) => {
@@ -273,13 +332,12 @@ export class LeadComponent implements OnInit, OnDestroy {
     });
   }
 
-  isFollowedUp(item:any):string {
-    // if(this.currentStage=="open") {
-    //   const hasFollowupData = item["followup_tracker"];
-    //   const hasRemark = item["remarks"];
-    //   return (hasFollowupData!="" && hasRemark!="")?"followed-up":"";
-    // } else return "";
-    return "";
+  isHighlighted(item:any):string {
+    const hightLightedData = this.utility.getOpenLeadHighLighted();
+    if(this.currentStage == "open" && Object.keys(hightLightedData).length>0 && hightLightedData.hasOwnProperty("open")){
+      const classname = hightLightedData["open"].includes(item["leadid"])? "already-worked": "";
+      return classname;
+    } else return "";
   }
 
   // followupCond(item:any):boolean {
@@ -288,19 +346,99 @@ export class LeadComponent implements OnInit, OnDestroy {
 
   onFilterLead(e:any) {this.copyLeadList = e;}
 
-  onChangeSource(e:any) {
+  onChangeSource(e:any, type:string) {
     const value = e.target.value;
-    if(value == "") {this.copyLeadList = JSON.parse(JSON.stringify(this.leadList));}
-    else {this.copyLeadList = this.leadList.filter((item:any) => item["source"]==value);}
+    if(value == "") {this.paginateTableData();}//{this.copyLeadList = JSON.parse(JSON.stringify(this.leadList));}
+    else {
+      if(type == "source") {
+        this.copyLeadList = this.leadList.filter((item:any) => item["source"]==value);
+      } else {
+        this.copyLeadList = this.leadList.filter((item:any) => ((item["remarks"]).toLowerCase()).includes(value));
+      }
+
+      // if(this.copyLeadList.length <= this.rows) {this.first=0;}
+    }
   }
 
   checkInfoAvailability(listStr:string):boolean {
     return !this.errorTypes.includes(listStr) && listStr.split(",").length>1;
   }
 
-  toTitleCase(str:string) {return str[0].toUpperCase() + str.substring(1, str.length);}
+  toTitleCase(str:string) {
+    if([undefined, null, ""].includes(str)) return "";
+    else return str[0].toUpperCase() + str.substring(1, str.length);
+  }
   doesFollowupExist(followupStr:string|any):boolean {
     if(this.errorTypes.includes(followupStr)) return false;
     else return true;
+  }
+
+  onSelectSingleItem(event:any, item:any, key:string) {
+    const isChecked:boolean = event.target.checked;
+    if(!this.copyItems.hasOwnProperty(key)) this.copyItems[key] = [];
+
+      if(["email", "contact"].includes(key) && item.includes(",")) {
+        const primaryItem = item.split(",")[0];
+        if(isChecked) this.copyItems[key].push(primaryItem);
+        else this.copyItems[key].splice(this.copyItems[key].indexOf(primaryItem), 1);
+      } else {
+        if(isChecked) this.copyItems[key].push(item);
+        else this.copyItems[key].splice(this.copyItems[key].indexOf(item), 1);
+      }
+  }
+
+  copyToClipboard(key:string) {
+    if(!this.copyItems.hasOwnProperty(key) || this.copyItems[key].length==0) {
+      this.utility.showToastMsg("error", "ERROR", "Please select atleast one item");
+      return;
+    }
+
+    const textareaTag = document.getElementById("textareaElem") as HTMLTextAreaElement;
+    const copyItemsList = this.copyItems[key];
+    const leadsLen = copyItemsList.length;
+    let copiedString = "";
+
+    for(let i=0; i<leadsLen; i++) {
+      if(copyItemsList[i] != "") copiedString += `${copyItemsList[i]}\n`;
+    }
+
+    textareaTag.value = copiedString;
+    textareaTag.focus();
+    textareaTag.select();
+    navigator.clipboard.writeText(textareaTag.value).then(() => {
+      this.uncheckCheckboxes(`checkbox-${key}`);
+      this.copyItems[key] = [];
+      this.utility.showToastMsg("success", "SUCCESS", `Selected ${key.replaceAll("_"," ")}s are successfully copied!`);
+    }, (err:any) => {
+      this.utility.showToastMsg("error", "ERROR", "There is some issue while copying.");
+    });
+  }
+
+  uncheckCheckboxes(classname:string) {
+    const checkboxesArr:any = document.querySelectorAll(`input[type='checkbox']:checked.${classname}`);
+    for(let i=0; i<checkboxesArr.length; i++) {
+      const checkboxTag = checkboxesArr[i] as HTMLInputElement;
+      checkboxTag.checked = false;
+    }
+  }
+
+  onClickInfoIcon(itemData:any) {
+    this.visibleDialogue3 = true;
+    this.singleItemData = itemData;
+    this.itemObjKeys = this.currentStage=="status"
+      ? Object.keys(infoModalStatusKeyVal)
+      : this.currentStage=="invoice" 
+        ? Object.keys(infoModalProformaKeyVal)
+        : Object.keys(infoModalTaxKeyVal);
+  }
+
+  getInfoLabels(key:string) { 
+    if(this.currentStage=="status") return infoModalStatusKeyVal[key];
+    else if(this.currentStage=="invoice") return infoModalProformaKeyVal[key];
+    else if(this.currentStage=="tax") return infoModalTaxKeyVal[key];
+  }
+  getInfoValues(value:string|any) {
+    if(["",null,undefined," "].includes(value)) return "N/A";
+    else return value;
   }
 }

@@ -10,5 +10,7 @@ export class EventsService {
 
   onCompleteInsertion:Subject<any> = new Subject<any>();
   passExistingEmails:Subject<any[]> = new BehaviorSubject<any[]>([]);
+  onPassPrintCommand:Subject<boolean> = new BehaviorSubject<boolean>(false);
   userLoginEvent:Subject<boolean> = new Subject<boolean>();
+  passPdfData:Subject<any> = new BehaviorSubject<any>({});
 }

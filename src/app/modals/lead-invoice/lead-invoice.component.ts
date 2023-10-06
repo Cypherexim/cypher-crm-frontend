@@ -1,8 +1,9 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, OnDestroy, OnInit, Output } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { Subscription, forkJoin } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { EllipsisPipe } from 'src/app/common/ellipsis.pipe';
 import { ApiService } from 'src/app/services/api.service';
+import { EventsService } from 'src/app/services/events.service';
 import { UtilitiesService } from 'src/app/services/utilities.service';
 
 @Component({
@@ -15,20 +16,24 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
     public activeModal: NgbActiveModal,
     private apiService: ApiService,
     private utility: UtilitiesService,
-    private ellipsesPipe: EllipsisPipe
+    private ellipsesPipe: EllipsisPipe,
+    private eventService: EventsService
   ) {}
 
   @Output() callback:EventEmitter<any> = new EventEmitter<any>();
+  @Output() printCallback:EventEmitter<any> = new EventEmitter<any>();
   apiSubscription1:Subscription = new Subscription();
   apiSubscription2:Subscription = new Subscription();
   apiSubscription3:Subscription = new Subscription();
   apiSubscription4:Subscription = new Subscription();
+  eventSubscription:any;
 
   currentStage:string = "";
   leadId:number = 0;
   isApiInProcess:boolean = false;
   visibleDialogue:boolean = false;
   visibleDialogue2:boolean = false;
+  visibleDialogue3:boolean = false;
   isAddPI:boolean = false;
   userData:any = {};
   doesUserBelongToDelhi:boolean = true;
@@ -93,11 +98,13 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
   ];
   labels:string[] = ["issued_By", "username", "invoice_No", "invoice_Date"];
 
+
   ngOnInit(): void {
     if(this.doesUserBelongToDelhi) this.tableHeads = this.tableHeadsTypes.insideDelhi;
     else this.tableHeads = this.tableHeadsTypes.outOfDelhi;
     this.getAllUser();
     this.getCompaniesList();
+    setTimeout(() => this.eventService.onPassPrintCommand.next(true), 2000);
   }
 
   onSetAttachment = (value:string) => this.attachmentType = [value];
@@ -162,10 +169,10 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(submittedBy="invoice") {
-    if(this.currentStage=="tax") {
-      this.onDismissModal();
-      return;
-    }
+    // if(this.currentStage=="tax") {
+    //   this.onDismissModal();
+    //   return;
+    // }
     const finalStep = (msg:string) => {
       this.isApiInProcess = false;
       this.callback.emit(true);
@@ -341,9 +348,20 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
       companyName: this.companyName,
       gstNumber: this.gstNum,
       clientEmail: this.email,
-      clientPhone: this.phone
+      clientPhone: this.phone,
+      currentStage: this.currentStage
     };
   }
+
+  onClickPrint() {
+    const pdfData = this.setAllRequiredValues();
+    this.eventService.passPdfData.next(pdfData);
+    setTimeout(() => {
+      this.onDismissModal();
+      this.printCallback.emit(true);
+    }, 1500);
+  }
+
 }
 
 

@@ -1,4 +1,4 @@
-<div class="shared-container h-screen w-full bg-white">
+<div class="shared-container h-screen w-full bg-white {{onClickPrint?'sharedHide':''}}">
     <header class="header-container h-1">
         <app-header></app-header>
     </header>
@@ -13,3 +13,12 @@
         </main>
     </div>
 </div>
+
+<div class="pritable-area" *ngIf="onClickPrint">
+    <app-pdf-template 
+        [invoiceData]="pdfDocData" 
+        [isProformaInvoice]="isProformaInvoice" 
+        [isUserFromDelhi]="isUserFromDelhi">
+    </app-pdf-template>
+</div>
+

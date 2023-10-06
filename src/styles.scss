@@ -109,8 +109,11 @@ div.spinner{
         font-size: 17.5px;
     }
 }
+p-dialog#dialog1,
 p-dialog#dialog2,
-p-dialog#dialog3{
+p-dialog#dialog3,
+p-dialog#dialog4,
+p-dialog#dialog5{
     .p-dialog .p-dialog-header{
         width: 100%;
         z-index: 999;

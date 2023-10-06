@@ -1,7 +1,7 @@
 export class LeadModel {
     leadUserKeys = [
         { label: "Demo Time", key: "demo_time" },
-        { label: "Comapany", key: "company_name" },
+        { label: "Company", key: "company_name" },
         { label: "Client Name", key: "name" },
         { label: "Email", key: "email" },
         { label: "Contact", key: "contact" },
@@ -25,7 +25,7 @@ export class LeadModel {
         // { label: "Last Followup", key: "last_followup" },
         // { label: "Next Followup", key: "next_followup" },
         { label: "Remark", key: "remarks" },
-        { label: "Comapany Name", key: "company_name" },
+        { label: "Company Name", key: "company_name" },
         { label: "Client Name", key: "name" },
         { label: "Email", key: "email" },
         { label: "Contact", key: "contact" },
@@ -73,7 +73,7 @@ export class LeadModel {
             ...this.commonKeys
         ],
         statusLeadKey: [ //using as defaul angular excel modal keys
-            { label: "comapany", key: "company" },
+            { label: "company", key: "company" },
             { label: "username", key: "username" },
             { label: "email", key: "email" },
             { label: "contact", key: "contact" },
@@ -122,3 +122,95 @@ export class StatusLead {
     status: string = "";
 }
 
+export interface PageEvent {
+    first: number;
+    rows: number;
+    page: number;
+    pageCount: number;
+}
+
+export const infoModalStatusKeyVal:any = {
+    status: "Status",
+    assignedFrom: "Assigned From",
+    remark: "Remark",
+    username: "Client Name",
+    company: "Company Name",
+    contact: "Contact Number",
+    email: "Email",
+    department: "Department",
+    designation: "Designation",
+    address: "Address",
+    location: "Location",
+    lastFollow: "Last Followup",
+    nextFollow: "Next Followup",
+    followupTracker: "Followup History",
+    pan: "PAN Number",
+    gst: "GST Number",
+    iec: "IEC Number",
+    plan_name: "Plan Name",
+    plan_price: "Plan Price",
+    source: "Source",
+    reference: "Reference",
+    currentStage: "Current Stage",
+    leadTracker: "Lead History",
+};
+
+export const infoModalProformaKeyVal:any = {
+    performa_num: "Proforma Number",
+    plan_name: "Plan Name",
+    plan_price: "Plan Price",
+    remarks: "Remark",
+    name: "Client Name",
+    company_name: "Company Name",
+    contact: "Contact",
+    email: "Email",
+    department: "Department",
+    designation: "Designation",
+    assigned_from: "Assigned From",
+    address: "Address",
+    location: "Location",
+    gst_num: "GST Number",
+    iec_num: "IEC Number",
+    pan_num: "PAN Number",
+    last_followup: "Last Followup",
+    next_followup: "Next Followup",
+    followup_tracker: "Followup History",
+    source: "Source",
+    source_detail: "Refrence Details",
+    transaction_time: "PI Transaction Time"
+}
+
+export const infoModalTaxKeyVal:any = {
+    invoice_date: "Invoice Date",
+    performa_num: "Proforma Number",
+    tax_num: "Tax Number",
+    issued_name: "Issued By",
+    payment_status: "Payment Status",
+    name: "Client Name",
+    company_name: "Company Name",
+    email: "Email",
+    contact: "Contact",
+    designation: "Designation",
+    department: "Department",
+    address: "Address",
+    location: "Location",
+    plan_name: "Plan Name",
+    gst_num: "GST Number",
+    pan_num: "PAN Number",
+    iec_num: "IEc Number",
+    report_name: "Report Name",
+    shipping_add: "Shipping Address",
+    billing_add: "Billing Address",
+    duration: "Duration",
+    HSN_SAC: "HSN SAC",
+    quantity: "Quantity",
+    unit: "Unit",
+    amountBeforeTax: "Rate",
+    amountAfterTax: "Grand Total",
+    tax_amt: "Taxable",
+    CGST_taxPer: "CGST Tax%",
+    SGST_taxPer: "SGST Tax%",
+    IGST_taxPer: "IGST Tax%",
+    transaction_time: "Transaction Time",
+    // bank_data: "",
+}

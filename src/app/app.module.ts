@@ -20,7 +20,7 @@ import { LeadAddComponent } from './modals/lead-add/lead-add.component';
 
 // ============================primeng moduels============================
 import { InputTextModule } from 'primeng/inputtext';
-import { DropdownModule } from 'primeng/dropdown';
+import { PaginatorModule } from 'primeng/paginator';
 import { CheckboxModule } from 'primeng/checkbox';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { TooltipModule } from 'primeng/tooltip';
@@ -37,6 +37,7 @@ import { LeadFileComponent } from './modals/lead-file/lead-file.component';
 import { LeadInvoiceComponent } from './modals/lead-invoice/lead-invoice.component';
 import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
 import { MousemoveDirective } from './common/mousemove.directive';
+import { PdfTemplateComponent } from './components/pdf-template/pdf-template.component';
 
 @NgModule({
   declarations: [
@@ -54,7 +55,8 @@ import { MousemoveDirective } from './common/mousemove.directive';
     LeadFileComponent,
     LeadInvoiceComponent,
     PageNotFoundComponent,
-    MousemoveDirective
+    MousemoveDirective,
+    PdfTemplateComponent,
   ],
   imports: [
     NgbModule,
@@ -73,7 +75,8 @@ import { MousemoveDirective } from './common/mousemove.directive';
     ToastModule,
     RadioButtonModule,
     CheckboxModule,
-    ContextMenuModule
+    ContextMenuModule,
+    PaginatorModule
   ],
   providers: [NgbActiveModal, DatePipe, TitleCasePipe, EllipsisPipe, MessageService],
   bootstrap: [AppComponent]

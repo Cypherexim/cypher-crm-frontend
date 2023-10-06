@@ -28,6 +28,17 @@ div.invoice-container{
                         font-size: 22.5px;
                         margin-right: 8px;
                     }
+                    i.pi-pencil{
+                        font-size: 13px;
+                        border: 1px solid #6d6d6d;
+                        padding: 5px 5px;
+                        border-radius: 50%;
+                        cursor: pointer;
+                        background-color: black;
+                        color: white;
+                        margin-right: 2px;
+                        &:active{background-color: white;color: black;}                    
+                    }
     
                     h3{
                         font-size: 30px;
@@ -252,6 +263,8 @@ div.loading-screen{
     }
 }
 
+
+
 p-dialog{
     div.popup-container{
         input{color: #484848;}
@@ -362,6 +375,24 @@ p-dialog{
             }
         }
     }
+
+    div.edit-box{
+        width: 80%;
+        position: absolute;
+        top: 55%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+
+        input{
+            border: 1px solid #c2c2c2;
+            padding: 5px 10px;
+            outline: none;
+        }
+        button{
+            padding: 5px 15px;
+            letter-spacing: 0.5px;
+        }
+    }
 }
 
 p-dialog#dialog3{
@@ -395,5 +426,3 @@ p-dialog#dialog3{
         }
     }
 }
-
-

@@ -135,6 +135,14 @@ export class ApiService {
     return this.http.post(`${environment.apiurl}/lead/updatePartialAllLead`, body);
   }
 
+  updateDemoLeadAPI(body:any) {
+    return this.http.post(`${environment.apiurl}/lead/updateDemoLead`, body);
+  }
+
+  updatePriceLeadAPI(body:any) {
+    return this.http.post(`${environment.apiurl}/lead/updatePriceLead`, body);
+  }
+
   getCompaniesListAPI() {
     return this.http.get(`${environment.apiurl}/getAllCompanies`);
   }

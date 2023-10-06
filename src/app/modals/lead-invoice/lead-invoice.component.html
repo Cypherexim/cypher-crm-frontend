@@ -9,6 +9,7 @@
             <div *ngIf="orderNum" class="order-num mb-3">Order Number:&nbsp;&nbsp;{{orderNum}}</div>
             <section class="first flex align-items-center justify-content-between">
                 <div class="company flex align-items-center">
+                    <i class="pi pi-pencil" (click)="visibleDialogue3=true"></i>
                     <i class="pi pi-building"></i>
                     <h3 class="m-0">{{companyName}}</h3>
                 </div>
@@ -168,7 +169,7 @@
         </div>
     
         <div class="submit-btn w-full text-right absolute bg-white bottom-0">
-            <button pButton pRipple label="Print" title="Print Tax Invoice" class="p-button-danger mr-2" (click)="onDismissModal()" *ngIf="currentStage=='tax'"></button>
+            <button pButton pRipple label="Print" title="Print Tax Invoice" class="p-button-danger mr-2" (click)="onClickPrint()"></button>
             <button pButton pRipple label="Email" title="Send Tax Invoice" class="p-button-primary mr-2" (click)="onSendEmail()" *ngIf="currentStage=='tax'"></button>
             <button pButton pRipple label="{{currentStage=='tax'?'Update':'Submit'}}" class="p-button-success mr-2" (click)="onSubmit('tax')"></button>
             <button pButton pRipple label="Cancel" class="p-button-secondary" (click)="onDismissModal()"></button>
@@ -190,7 +191,7 @@
                 <i class="pi pi-caret-down"></i>
             </div>
             <div class="submit mt-4 w-full text-center">
-                <button pButton pRipple label="Next" class="p-button-success" (click)="getSingleCompanyDetail()"></button>
+                <button pButton pRipple label="Next" [disabled]="choosenCompany?.name.length==0" class="p-button-success" (click)="getSingleCompanyDetail()"></button>
             </div>
         </div>
 
@@ -203,6 +204,13 @@
     </div>
 </div>
 
+
+<p-dialog id="dialog5" [(visible)]="visibleDialogue3" [modal]="true" [maximizable]="false" [draggable]="false" [resizable]="false" [style]="{width: '40%', height: '25%'}">
+    <div class="edit-box flex flex-column justify-content-center">
+        <input class="mb-3" type="text" [(ngModel)]="companyName" placeholder="Company Name" />
+        <button pButton pRipple label="Submit" class="p-button-success w-6 mx-auto" (click)="visibleDialogue3=false"></button>
+    </div>
+</p-dialog>
 
 <p-dialog id="dialog2" [(visible)]="visibleDialogue" [modal]="true" [maximizable]="false" [draggable]="false" [resizable]="false" [style]="{width: '75%', height: '75%'}">
     <div class="content h-full popup-container relative">

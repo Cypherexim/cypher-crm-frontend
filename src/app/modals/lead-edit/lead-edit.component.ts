@@ -35,7 +35,7 @@ export class LeadEditComponent implements OnDestroy, OnInit {
     {label: "Today Followup", id:"open"}, 
     {label: "Next Followup", id:"follow-up"},
     {label: "Demo", id:"demo"},
-    {label: "Pricing", id:"pricing"},
+    {label: "Pricing", id:"price"},
     {label: "Invoice", id:"invoice"},
     {label: "Reject", id:"reject"},
   ];
@@ -119,6 +119,7 @@ export class LeadEditComponent implements OnDestroy, OnInit {
     this.excelModelVal.nextFollow = this.leadData["next_followup"];
     this.excelModelVal.followupTracker = this.leadData["followup_tracker"];
     this.excelModelVal.remark = this.leadData["remarks"];
+    this.updatedRemark = this.leadData["remarks"];
     this.excelModelVal.source = this.leadData["source"];
     this.excelModelVal.currentStage = this.currentLeadPage;
     this.excelModelVal.userId = this.utility.fetchUserSingleDetail("id");
@@ -131,11 +132,22 @@ export class LeadEditComponent implements OnDestroy, OnInit {
       this.excelModelVal.reference.designation = referenceObj["designation"];
     }
     this.gstNum = this.leadData["gst_num"];
+    this.assignedUser = this.excelModelVal.userId;
 
     ["email", "contact"].forEach((item:string) => {
       const listStrArr = (item=="email" ? this.excelModelVal.email : this.excelModelVal.contact).split(",");
       for(let i=0; i<listStrArr.length; i++) this.listArr[item].push({value: listStrArr[i]});
     });
+
+        
+    if(this.currentLeadPage=="open") {
+      if(!this.utility.isHighlightedLeadAlreadyExist(this.currentLeadPage, this.excelModelVal.leadId)) {
+        const hightLightedData = this.utility.getOpenLeadHighLighted();
+        if(!hightLightedData.hasOwnProperty("open")) hightLightedData["open"] = [];
+        hightLightedData[this.currentLeadPage].push(this.excelModelVal.leadId);
+        this.utility.setOpenLeadHighLighted(hightLightedData);
+      }
+    }
   }
 
   onClickEdit() {
@@ -187,7 +199,7 @@ export class LeadEditComponent implements OnDestroy, OnInit {
       else if(this.currentLeadStatus=="reject") this.addToRejectLead();
       else if(this.currentLeadStatus=="open") this.addToOpenLead();
       else if(this.currentLeadStatus=="demo") this.addToDemoLead();
-      else if(this.currentLeadStatus=="pricing") this.addToPricingLead();
+      else if(this.currentLeadStatus=="price") this.addToPricingLead();
       else if(this.currentLeadStatus=="invoice") this.addToInvoiceLead();
     }
   }
@@ -343,6 +355,7 @@ export class LeadEditComponent implements OnDestroy, OnInit {
         if(!res.error) {
           this.isSubmitClicked = false;
           this.callback.emit({msg: res?.msg, isMsg: true});
+          this.removeHightlightedLead(this.leadData.id);
           this.onDismissModal();
         }
       },
@@ -388,15 +401,25 @@ export class LeadEditComponent implements OnDestroy, OnInit {
         id: this.leadData["id"],
         remark: this.updatedRemark
       };
-      const isFollowUp = this.currentLeadStatus=="follow-up";
-      
-      if(isFollowUp) {bodyObj["dateTime"] = `${this.dateTime.date} ${this.dateTime.time}:00`;} 
-      else {bodyObj["tableType"] = this.currentLeadStatus.replace("-", "");}
   
-      this.apiSubscription1 = (isFollowUp 
-        ? this.apiService.updateFollowupLeadAPI(bodyObj)
-        : this.apiService.updateLeadRemarkAPI(bodyObj)
-      ).subscribe({
+      if(this.currentLeadPage=="follow-up") {bodyObj["dateTime"] = `${this.dateTime.date} ${this.dateTime.time}:00`;}
+      else if(["demo","price"].includes(this.currentLeadPage)) {
+        if(this.currentLeadPage=="demo") { bodyObj["demoTime"] = `${this.dateTime.date} ${this.dateTime.time}:00`; }
+
+        const isUserIdSame = this.excelModelVal.userId == this.assignedUser;
+        bodyObj["userId"] = isUserIdSame? this.excelModelVal.userId: this.assignedUser;
+        bodyObj["assignedFrom"] = isUserIdSame? this.leadData["assigned_from_id"]: this.excelModelVal.userId;
+      } else {bodyObj["tableType"] = this.currentLeadStatus.replace("-", "");} //only for those status that allow only remark section
+   
+      const apiSubscriptionObj:any = {
+        "follow-up": this.apiService.updateFollowupLeadAPI(bodyObj),
+        "open": this.apiService.updateLeadRemarkAPI(bodyObj),
+        "reject": this.apiService.updateLeadRemarkAPI(bodyObj),
+        "demo": this.apiService.updateDemoLeadAPI(bodyObj),
+        "price": this.apiService.updatePriceLeadAPI(bodyObj),
+      };
+
+      this.apiSubscription1 = (apiSubscriptionObj[this.currentLeadStatus]).subscribe({
         next: (res:any) => {
           this.isSubmitClicked = false;
           this.callback.emit({msg: res?.msg, isMsg: true});
@@ -424,7 +447,7 @@ export class LeadEditComponent implements OnDestroy, OnInit {
     this.removeError();
     let validationCounter = 0;
 
-    if(["follow-up", "demo", "pricing", "invoice"].includes(this.currentLeadStatus)) {
+    if(["follow-up", "demo", "price", "invoice"].includes(this.currentLeadStatus)) {
       if(["follow-up", "demo"].includes(this.currentLeadStatus)) {
         if([this.dateTime.date,this.dateTime.time].includes("")) {
           this.toggleErrorApply("datetime");
@@ -432,7 +455,7 @@ export class LeadEditComponent implements OnDestroy, OnInit {
         }
       }
 
-      if(["demo", "pricing", "invoice"].includes(this.currentLeadStatus)) {
+      if(["demo", "price", "invoice"].includes(this.currentLeadStatus)) {
         if(this.assignedUser=="") {
           this.toggleErrorApply("assignTo");
           validationCounter++;
@@ -473,10 +496,22 @@ export class LeadEditComponent implements OnDestroy, OnInit {
     else return listStr;
   }
   onAddItem(key:string) {
+    if(this.listArr[key].length == 0) { this.listArr[key].push({value: ""}); return;}
     if((this.listArr[key].at(-1)).value != "") { this.listArr[key].push({value: ""}); }
   }
 
   onRemoveItem(key:string, index:number) {(this.listArr[key]).splice(index, 1);}
+
+  removeHightlightedLead(id:any) {
+    if(this.currentLeadPage == "open") {
+      const highlightedData = this.utility.getOpenLeadHighLighted();
+      if(highlightedData.hasOwnProperty("open")) {
+        const idIndex = highlightedData["open"].indexOf(id);
+        highlightedData["open"].splice(idIndex, 1);
+        this.utility.setOpenLeadHighLighted(highlightedData);
+      }
+    }
+  }
 }
 
 

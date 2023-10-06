@@ -1,4 +1,7 @@
-import { Component } from '@angular/core';
+import {  Component } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { EventsService } from 'src/app/services/events.service';
+import { UtilitiesService } from 'src/app/services/utilities.service';
 
 @Component({
   selector: 'app-shared',
@@ -6,5 +9,39 @@ import { Component } from '@angular/core';
   styleUrls: ['./shared.component.scss']
 })
 export class SharedComponent {
+  constructor(
+    private eventService: EventsService,
+    private utility: UtilitiesService
+  ) {
+    this.onPrintCommand();
+    this.onPassingPdfData();
+  }
 
+  onClickPrint:boolean = false;
+  pdfDocData:any = {};
+  isUserFromDelhi:boolean = false;
+  isProformaInvoice:boolean = false;
+  eventSubscription1:Subscription = new Subscription();
+  eventSubscription2:Subscription = new Subscription();
+
+  onPrintCommand() {
+    this.eventSubscription1 = this.eventService.onPassPrintCommand.subscribe({
+      next: (res:boolean) => {this.onClickPrint = res;}, 
+      error: (err:any) => console.log(err)
+    });
+  }
+
+  onPassingPdfData() {
+    this.eventSubscription2 = this.eventService.passPdfData.subscribe({
+      next: (res:any) => {
+        if(Object.keys(res).length>0) {
+          res["bankData"] = JSON.parse(res["bankData"]);
+          res["amoutInStr"] = this.utility.convertNumberToWords(res["amount"][1]);
+          this.isUserFromDelhi = res["gstNumber"].substring(0,2)=="07";
+          this.isProformaInvoice = res["currentStage"]=="invoice";
+          this.pdfDocData = res;
+        }
+      }, error: (err:any) => console.log(err)
+    });
+  }
 }

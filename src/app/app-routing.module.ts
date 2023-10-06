@@ -6,9 +6,11 @@ import { HomeComponent } from './pages/home/home.component';
 import { AdminComponent } from './pages/admin/admin.component';
 import { LeadComponent } from './pages/lead/lead.component';
 import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
+import { PdfTemplateComponent } from './components/pdf-template/pdf-template.component';
 
 const routes: Routes = [
   {path: "login", component:LoginComponent},
+  {path: "pdf", component:PdfTemplateComponent},
   {path:"", component:SharedComponent, children: [
     {path: "home", component:HomeComponent},
     {path: "admin", component:AdminComponent},

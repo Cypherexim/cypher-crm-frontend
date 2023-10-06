@@ -1,0 +1,7 @@
+div.pritable-area{display: none;}
+
+@media print{
+    div.sharedHide{display: none;}
+    div.pritable-area{display: block;}
+}
+
