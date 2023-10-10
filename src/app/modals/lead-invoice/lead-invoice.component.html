@@ -23,7 +23,7 @@
                     <!-- <div class="username flex">
                         <select><option value="Mr.">Mr.</option><option value="Ms.">Ms.</option></select>
                     </div> -->
-                    <input class="mr-1" type="text" placeholder="Invoice Number" [(ngModel)]="taxNum" />
+                    <input *ngIf="currentStage=='tax'" class="mr-1" type="text" placeholder="Invoice Number" [(ngModel)]="taxNum" />
                     <input type="date" [(ngModel)]="invoiceDate" onfocus="this.showPicker()" />
     
                     <span class="{{item}} absolute" *ngFor="let item of labels">{{item | titlecase}}</span> 
@@ -118,7 +118,7 @@
                 </div>
             </section>
     
-            <section class="fifth">
+            <section class="fifth" *ngIf="!isAddingNewPI">
                 <div class="pi-status mb-3">
                     <span>Payment Status:</span>
                     <select [(ngModel)]="paymentStatus">
@@ -171,7 +171,8 @@
         <div class="submit-btn w-full text-right absolute bg-white bottom-0">
             <button pButton pRipple label="Print" title="Print Tax Invoice" class="p-button-danger mr-2" (click)="onClickPrint()"></button>
             <button pButton pRipple label="Email" title="Send Tax Invoice" class="p-button-primary mr-2" (click)="onSendEmail()" *ngIf="currentStage=='tax'"></button>
-            <button pButton pRipple label="{{currentStage=='tax'?'Update':'Submit'}}" class="p-button-success mr-2" (click)="onSubmit('tax')"></button>
+            <button title="Create new tax invoice" *ngIf="!isAddingNewPI" pButton pRipple label="{{currentStage=='tax'?'Update':'Submit'}}" class="p-button-success mr-2" (click)="onSubmit(currentStage=='tax'?'tax':'')"></button>
+            <button title="Create new PI" *ngIf="isAddingNewPI" pButton pRipple label="Submit" class="p-button-success mr-2" (click)="onClickNewAdd()"></button>
             <button pButton pRipple label="Cancel" class="p-button-secondary" (click)="onDismissModal()"></button>
         </div>
     
@@ -191,6 +192,7 @@
                 <i class="pi pi-caret-down"></i>
             </div>
             <div class="submit mt-4 w-full text-center">
+                <!-- <button pButton pRipple label="Add New" class="p-button-danger bg-red-400 mr-3" (click)="onClickAddNew()"></button> -->
                 <button pButton pRipple label="Next" [disabled]="choosenCompany?.name.length==0" class="p-button-success" (click)="getSingleCompanyDetail()"></button>
             </div>
         </div>
@@ -263,7 +265,7 @@
         </section>
     
         <section class="second mb-3" *ngIf="editFormType=='table'">
-            <select [(ngModel)]="selectedReport" class="mb-5">
+            <select [(ngModel)]="selectedReport" class="mb-5" [disabled]="isAddingNewPI">
                 <option value="">-- Select Report Type --</option>
                 <option value="{{item}}" *ngFor="let item of reportType">{{item}}</option>
             </select>
@@ -271,31 +273,31 @@
             <div class="input-box">
                 <div class="input-fields mb-4">
                     <span>Duration</span>
-                    <input type="text" [(ngModel)]="tableData.duration">
+                    <input type="text" [(ngModel)]="tableData.duration" [disabled]="isAddingNewPI">
                 </div>
                 <div class="input-fields mb-4">
                     <span>HSN/SAC</span>
-                    <input type="text" [(ngModel)]="tableData.hsnCode">
+                    <input type="text" [(ngModel)]="tableData.hsnCode" [disabled]="isAddingNewPI">
                 </div>
                 <div class="input-fields mb-4">
                     <span>Quantity</span>
-                    <input type="number" [(ngModel)]="tableData.qty">
+                    <input type="number" [(ngModel)]="tableData.qty" [disabled]="isAddingNewPI">
                 </div>
                 <div class="input-fields mb-4">
                     <span>Unit</span>
-                    <input type="text" [(ngModel)]="tableData.unit">
+                    <input type="text" [(ngModel)]="tableData.unit" [disabled]="isAddingNewPI">
                 </div>
                 <div *ngIf="doesUserBelongToDelhi" class="input-fields mb-4">
                     <span>CGST(%)</span>
-                    <input type="number" [(ngModel)]="tableData.gst.cgst">
+                    <input type="number" [(ngModel)]="tableData.gst.cgst" [disabled]="isAddingNewPI">
                 </div>
                 <div *ngIf="doesUserBelongToDelhi" class="input-fields mb-4">
                     <span>SGST(%)</span>
-                    <input type="number" [(ngModel)]="tableData.gst.sgst">
+                    <input type="number" [(ngModel)]="tableData.gst.sgst" [disabled]="isAddingNewPI">
                 </div>
                 <div *ngIf="!doesUserBelongToDelhi" class="input-fields mb-4">
                     <span>IGST(%)</span>
-                    <input type="number" [(ngModel)]="tableData.gst.igst">
+                    <input type="number" [(ngModel)]="tableData.gst.igst" [disabled]="isAddingNewPI">
                 </div>
                 <div class="input-fields mb-4">
                     <span>Rate(₹)</span>

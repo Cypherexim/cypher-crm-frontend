@@ -26,15 +26,18 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
   apiSubscription2:Subscription = new Subscription();
   apiSubscription3:Subscription = new Subscription();
   apiSubscription4:Subscription = new Subscription();
+  apiSubscription5:Subscription = new Subscription();
   eventSubscription:any;
 
   currentStage:string = "";
   leadId:number = 0;
+  onlyId:number = 0;
   isApiInProcess:boolean = false;
   visibleDialogue:boolean = false;
   visibleDialogue2:boolean = false;
   visibleDialogue3:boolean = false;
   isAddPI:boolean = false;
+  isAddingNewPI:boolean = false;
   userData:any = {};
   doesUserBelongToDelhi:boolean = true;
   editFormType:string = "";
@@ -48,7 +51,7 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
   companyName:string = "";
   userName:string = "";
   taxNum:string = "";
-  orderNum:number = 0;
+  orderNum:string = "";
   issuedBy:any = "";
   companiesList:any[] = [];
   copyCompaniesList:any[] = [];
@@ -96,8 +99,7 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
     {key: "Tax Invoice with Stamp", val:"tax-stamp"}, 
     {key: "No Attachment", val:"none"}
   ];
-  labels:string[] = ["issued_By", "username", "invoice_No", "invoice_Date"];
-
+  labels:string[] = [];
 
   ngOnInit(): void {
     if(this.doesUserBelongToDelhi) this.tableHeads = this.tableHeadsTypes.insideDelhi;
@@ -130,7 +132,7 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
   }
 
   onBindUserData(userData:any) {
-    const {address, gst_num, email, company_name, name, performa_num, leadid, plan_price, contact, assigned_from, assigned_id} = userData;
+    const {address, gst_num, email, company_name, name, performa_num, leadid, plan_price, contact, id, assigned_id} = userData;
     this.doesUserBelongToDelhi = (address.toLowerCase()).includes("delhi");
     this.address.billing.line1 = address;
     this.leadId = leadid;
@@ -144,9 +146,11 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
     this.orderNum = performa_num;
     this.tableData.rate = plan_price;
     this.issuedBy = assigned_id;
+    this.onlyId = id;
 
     this.doesUserBelongToDelhi = this.gstNum.substring(0, 2)=="07";
     this.onCalculateTax();
+    this.labels = ["issued_By", "username", "invoice_Date"];
   }
 
   convertNumToString(num:any, isWithCurrrency:boolean=true) {
@@ -169,10 +173,11 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(submittedBy="invoice") {
-    // if(this.currentStage=="tax") {
-    //   this.onDismissModal();
-    //   return;
-    // }
+    if(this.currentStage=="tax") {
+      this.onUpdateInvoiceDetails();
+      return;
+    }
+
     const finalStep = (msg:string) => {
       this.isApiInProcess = false;
       this.callback.emit(true);
@@ -232,6 +237,21 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
     });
   }
 
+  onUpdateInvoiceDetails() {
+    this.isApiInProcess = true;
+    const bodyObj = this.setAllRequiredValues();
+    this.apiSubscription5 = this.apiService.updateTaxInvoiceLeadAPI(bodyObj).subscribe({
+      next: (res:any) => {
+        if(!res.error) {
+          this.isApiInProcess = false;
+          this.utility.showToastMsg("success", "SUCCESS", "Tax Invoice has been updated!");
+          this.callback.emit(true);
+          this.onDismissModal();
+        }
+      }, error: (err:any) => console.log(err)
+    });
+  }
+
   getAllUser() {
     const userId = this.utility.fetchUserSingleDetail("id");
     this.apiSubscription2 = this.apiService.getAllUsersAPI(userId).subscribe({
@@ -264,15 +284,20 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
 
   getSingleCompanyDetail() {
     this.isApiInProcess = true;
+    const suffixPiNum = `${new Date().getFullYear()}-${`${new Date().getFullYear()+1}`.substring(2, 4)}`;
     this.apiSubscription4 = this.apiService.getSingleCompanyDetailAPI(this.choosenCompany?.id).subscribe({
       next: (res:any) => {
         if(!res?.error) {
-          const {company_name, name:clientName, address, gst_num, email} = res?.result[0];
+          const {company_name, name:clientName, address, gst_num, email, id} = res?.result[0];
           this.companyName = company_name;
           this.userName = clientName;
           this.gstNum = gst_num;
-          this.email = email;
+          this.emailArr = email.split(",");
+          this.email = this.emailArr[0];
+          this.leadId = id;
           this.address.billing.line1 = address; 
+          this.userData = JSON.parse(JSON.stringify(res?.result[0]));
+          this.taxNum = `${suffixPiNum}EPL${this.taxNum}`;
           
           if(!this.errorTypes.includes(this.gstNum) && this.gstNum.length>=10) {
             this.doesUserBelongToDelhi = this.gstNum.substring(0, 2)=="07";
@@ -280,6 +305,7 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
 
           this.isApiInProcess = false;
           this.isAddPI = false;
+          this.isAddingNewPI = true;
         }
       }, error: (err:any) => console.log(err)
     });
@@ -298,10 +324,12 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
     this.tableData.unit = dataObj["unit"];
     this.tableData.taxable = dataObj["tax_amt"];
     this.leadId = dataObj["leadid"];
+    this.onlyId = dataObj["id"];
     this.companyName = company_name;
     this.userName = name;
     this.gstNum = gst_num;
-    this.email = email;
+    this.emailArr = email.split(",");
+    this.email = this.emailArr[0];
     this.phone = contact.split(",")[0];
     this.issuedBy = dataObj["issued_by"];
     this.address.billing = {line1: (billing_add).split("~")[0], line2: (billing_add).split("~")[1]};
@@ -315,6 +343,7 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
       this.address.shipping = {line1: (shipping_add).split("~")[0], line2: (shipping_add).split("~")[1]};
     }
     this.onCalculateTax();
+    this.labels = ["issued_By", "username", "invoice_No", "invoice_Date"];
   }
 
 
@@ -322,9 +351,10 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
     const {cgst, sgst, igst} = this.tableData.gst;
     const {cgst:cgstAmt, sgst:sgstAmt, igst:igstAmt} = this.tableData.gstAmt;
     return {
+      id: this.onlyId,
       leadId: this.leadId,
-      userId: this.userData?.user_id,
-      planName: this.userData?.plan_name,
+      userId: this.userData?.user_id || this.utility.fetchUserSingleDetail("id"),
+      planName: this.userData?.plan_name || "",
       invoiceDate: this.invoiceDate,
       address: [this.address.shipping, this.address.billing],
       taxNum: this.taxNum,
@@ -354,14 +384,49 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
   }
 
   onClickPrint() {
+    this.isApiInProcess = true;
     const pdfData = this.setAllRequiredValues();
     this.eventService.passPdfData.next(pdfData);
     setTimeout(() => {
+      this.isApiInProcess = false;
       this.onDismissModal();
       this.printCallback.emit(true);
     }, 1500);
   }
 
+
+  onClickAddNewBtn() {
+    const suffixPiNum = `${new Date().getFullYear()}-${`${new Date().getFullYear()+1}`.substring(2, 4)}`;
+    this.isAddPI = false;
+    this.isAddingNewPI = true;
+    this.taxNum = `${suffixPiNum}EPL${this.taxNum}`;
+  }
+
+
+  onClickNewAdd() {
+    this.isApiInProcess = true;
+    const bodyObj = {
+      leadId: this.leadId, 
+      gst: this.gstNum, 
+      userId: this.utility.fetchUserSingleDetail("id"), 
+      assignedFrom: this.utility.fetchUserSingleDetail("id"), 
+      plan_price: this.tableData.rate, 
+      performa_num: this.orderNum,
+      lastFollow: "",  nextFollow: "", remark: "", 
+      leadTracker: "", followupTracker: "", plan_name: ""
+    }
+    console.log(bodyObj);
+    this.apiSubscription1 = this.apiService.addInvoiceLeadAPI(bodyObj).subscribe({
+      next: (res:any) => {
+        if(!res?.error) {
+          this.isApiInProcess = false;
+          this.onDismissModal();
+          this.utility.showToastMsg("success", "SUCCESS", "PI successfully added!");
+          this.callback.emit(true);
+        }
+      }, error: (err:any) => console.log(err)
+    })
+  }
 }
 
 

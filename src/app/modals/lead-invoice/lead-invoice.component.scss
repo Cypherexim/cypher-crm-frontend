@@ -243,7 +243,7 @@ div.invoice-container{
                 }
                 i{font-size: 14px;}
             }
-            div.submit button{padding: 5px 5%;}
+            div.submit button{padding: 5px 0; width: 12%;}
         }
     }
 }
@@ -360,7 +360,7 @@ p-dialog{
             padding: 0 10%;
             div.input-fields{
                 display: flex;
-                align-items: end;
+                align-items: flex-end;
                 span{
                     font-size: 17px;
                     font-weight: 500;

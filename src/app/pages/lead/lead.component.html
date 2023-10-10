@@ -19,7 +19,9 @@
                 </select>
             </div>
             <h1 class="w-full mb-0 flex justify-content-center align-items-center mb-2">{{(currentStage=='open'?'Today Follow-up':currentStage=='follow-up'? 'Next Follow-up': currentStage=='invoice'?'proforma':currentStage) | titlecase}} {{!titleCondition.includes(currentStage)?'Leads':'Invoices'}}</h1>
-  
+            
+            <div class="total absolute right-0 mr-3"><span>Total:</span> {{leadList.length}}</div>
+
             <div class="table-container w-full" *ngIf="copyLeadList.length>0">
                 <table class="w-full relative">
                     <thead class="sticky top-0 z-5">
@@ -36,7 +38,7 @@
                     <tbody>
                         <tr *ngFor="let item of copyLeadList;let i=index">
                             <td *ngIf="['invoice','tax','status'].includes(currentStage)" class="sticky left-0"><i class="fa-solid fa-circle-info" (click)="onClickInfoIcon(item)"></i></td>
-                            <td class="{{isHighlighted(item)}}">{{i+1}}</td>
+                            <td class="{{isHighlighted(item)}}">{{(i+1)}}</td>
                             <td class="{{isHighlighted(item)}} text-start" [pTooltip]="['remarks'].includes(item2.key)?item[item2.key]:''" tooltipPosition="bottom" *ngFor="let item2 of tableHeads">
                                 <!-- {{isFollowedUp(item)}} -->
                                 <div class="flex align-items-center">
@@ -57,14 +59,14 @@
                     </tbody>
                 </table>
             </div>
-            <div class="pagination-box flex justify-content-center" *ngIf="copyLeadList.length>0">
+            <!-- <div class="pagination-box flex justify-content-center" *ngIf="copyLeadList.length>0">
                 <p-paginator 
                     (onPageChange)="onPageChange($event)" 
                     [first]="first" [rows]="rows" 
                     [totalRecords]="leadList.length" 
                     [showFirstLastIcon]="true">
                 </p-paginator>
-            </div>
+            </div> -->
 
             <div class="spinner w-full" *ngIf="copyLeadList.length==0">
                 <div *ngIf="isApiInProcess" class="spinner-icon flex flex-column justify-content-center align-items-center">

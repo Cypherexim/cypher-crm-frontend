@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { DatePipe, TitleCasePipe } from '@angular/common';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
@@ -33,6 +33,7 @@ export class LeadComponent implements OnInit, OnDestroy {
   apiSubscription1:Subscription = new Subscription();
   apiSubscription2:Subscription = new Subscription();
   apiSubscription3:Subscription = new Subscription();
+  apiSubscription4:Subscription = new Subscription();
   eventSubscription1:Subscription = new Subscription();
   eventSubscription2:Subscription = new Subscription();
   eventSubscription3:Subscription = new Subscription();
@@ -46,7 +47,7 @@ export class LeadComponent implements OnInit, OnDestroy {
   isApiInProcess:boolean = false;
   isButtonClicked:boolean = false;
   taxNum:string = "";
-  piNum:number = 0;
+  piNum:string = "";
   tdModalType:string = "last_followup";
   tableHeadCheckBox:string[] = ["email", "company_name", "contact"];
   copyItems:any = {};
@@ -73,22 +74,22 @@ export class LeadComponent implements OnInit, OnDestroy {
     email: "Email List"
   };
 
-  first: number = 0;
-  rows: number = 15;
+  // first: number = 0;
+  // rows: number = 15;
 
-  onPageChange(event: PageEvent) {
-    this.first = event.first;
-    this.rows = event.rows;
-    this.paginateTableData(event);
-  }
+  // onPageChange(event: PageEvent) {
+  //   this.first = event.first;
+  //   this.rows = event.rows;
+  //   this.paginateTableData(event);
+  // }
 
-  paginateTableData(paginatorData:any={}) {
-    const copyTempData = JSON.parse(JSON.stringify(this.leadList));
-    if(Object.keys(paginatorData).length>0) {
-      const {first, rows} = paginatorData;
-      this.copyLeadList = copyTempData.splice(first, rows);
-    } else {this.copyLeadList = copyTempData.splice(0, this.rows); this.first=0;}
-  }
+  // paginateTableData(paginatorData:any={}) {
+  //   const copyTempData = JSON.parse(JSON.stringify(this.leadList));
+  //   if(Object.keys(paginatorData).length>0) {
+  //     const {first, rows} = paginatorData;
+  //     this.copyLeadList = copyTempData.splice(first, rows);
+  //   } else {this.copyLeadList = copyTempData.splice(0, this.rows); this.first=0;}
+  // }
 
   urlDetectionEvent() {
     this.eventSubscription1 = this.router.events.subscribe((res:any) => {
@@ -106,6 +107,7 @@ export class LeadComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    const today = new Date();
     this.eventSubscription2 = this.eventService.onCompleteInsertion.subscribe({
       next: (res:any) => {
         if(res == "Inserted") this.refreshPage();
@@ -113,7 +115,9 @@ export class LeadComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.fetchInvoiceNumber();
+    //once the date reaches 1st of April all tracking number are to reset
+    if((today.getMonth()+1) == 4 && today.getDate() == 1) this.resetInvoiceNumber();
+    else this.fetchInvoiceNumber();
   }
 
   ngOnDestroy(): void {
@@ -123,6 +127,7 @@ export class LeadComponent implements OnInit, OnDestroy {
     this.apiSubscription1.unsubscribe();
     this.apiSubscription2.unsubscribe();
     this.apiSubscription3.unsubscribe();
+    this.apiSubscription4.unsubscribe();
     window.matchMedia('print').removeEventListener("change", this.eventSubscription);
   }
 
@@ -131,13 +136,21 @@ export class LeadComponent implements OnInit, OnDestroy {
     window.print();
   }
 
+  resetInvoiceNumber(){
+    this.apiSubscription4 = this.apiService.resetInvoiceNumAPI().subscribe({
+      next: (res:any) => {
+        if(!res.error) { this.fetchInvoiceNumber(); }
+      }, error: (err:any) => console.log(err)
+    });
+  }
 
   fetchInvoiceNumber() {
+    const getStrNum = (num:string) => Number(num)<=9 ? `0${num}`: num;
     this.apiSubscription1 = this.apiService.getInvoiceNumAPI().subscribe({
       next: (res:any) => {
         if(!res?.error) {
-          this.taxNum = res?.result[0]?.PI_num;
-          this.piNum = res?.result[0]?.order_num;
+          this.taxNum = getStrNum(res?.result[0]?.PI_num);
+          this.piNum = getStrNum(res?.result[0]?.order_num);
         }
       }, error: (err:any) => {console.log(err);}
     });
@@ -165,8 +178,8 @@ export class LeadComponent implements OnInit, OnDestroy {
     this.apiSubscription1 = (leadTypeAPI[stageType]).subscribe({
       next: (res:any) => {
         this.leadList = res?.result;
-        // this.copyLeadList = res?.result;
-        this.paginateTableData();
+        this.copyLeadList = res?.result;
+        // this.paginateTableData();
         this.isApiInProcess = false;
         
         if(stageType=="open") {
@@ -190,8 +203,8 @@ export class LeadComponent implements OnInit, OnDestroy {
       const parsedJSON = JSON.parse(leadData);
       this.leadList.push({...dataList[i], ...parsedJSON});
     }
-    // this.copyLeadList = JSON.parse(JSON.stringify(this.leadList));
-    this.paginateTableData();
+    this.copyLeadList = JSON.parse(JSON.stringify(this.leadList));
+    // this.paginateTableData();
   }
 
   setTableValues(data:any, key:string) {
@@ -246,12 +259,20 @@ export class LeadComponent implements OnInit, OnDestroy {
     const modalRef = this.modalService.open(LeadInvoiceComponent, { backdrop: "static", keyboard: false, windowClass: 'leadAddModalCss3' });
     (<LeadInvoiceComponent>modalRef.componentInstance).isAddPI = true;
     (<LeadInvoiceComponent>modalRef.componentInstance).taxNum = this.taxNum;
-    (<LeadInvoiceComponent>modalRef.componentInstance).orderNum = this.piNum;
-    const modalSubscription = (<LeadInvoiceComponent>modalRef.componentInstance).printCallback.subscribe({
+    (<LeadInvoiceComponent>modalRef.componentInstance).orderNum = this.piNum;//["issued_By", "username", "invoice_No", "invoice_Date"]
+    (<LeadInvoiceComponent>modalRef.componentInstance).labels = ["issued_By", "username", "invoice_Date"];
+    const modalSubscription = (<LeadInvoiceComponent>modalRef.componentInstance).callback.subscribe({
+      next: (res:any) => { 
+        this.updateInvoiceTracker("order_num");
+        this.refreshPage();
+        modalSubscription.unsubscribe();
+      }, error: (err:any) => console.log(err)
+    })
+    const modalSubscription2 = (<LeadInvoiceComponent>modalRef.componentInstance).printCallback.subscribe({
       next: (res:any) => { 
         if(res) window.print();
         setTimeout(() => this.eventService.onPassPrintCommand.next(false), 1000); 
-        modalSubscription.unsubscribe();
+        modalSubscription2.unsubscribe();
       }, error: (err:any) => console.log(err)
     });
   }
@@ -277,12 +298,14 @@ export class LeadComponent implements OnInit, OnDestroy {
     const modalSubs = (<LeadInvoiceComponent>modalRef.componentInstance).callback.subscribe({
       next: (res:any) => {
         if(res) {
-          this.apiSubscription2 = this.apiService.allDeleteAPIs(itemData["leadid"], itemData["user_id"], "Invoice").subscribe({
-            next: (res:any) => {
-              this.refreshPage();
-              this.updateInvoiceTracker("PI_num");
-            }, error: (err:any) => console.log(err)
-          });
+          this.refreshPage();
+          if(this.currentStage == "invoice") this.updateInvoiceTracker("PI_num");
+          // this.apiSubscription2 = this.apiService.allDeleteAPIs(itemData["leadid"], itemData["user_id"], "Invoice").subscribe({
+          //   next: (res:any) => {
+            // this.refreshPage();
+            // this.updateInvoiceTracker("PI_num");
+          //   }, error: (err:any) => console.log(err)
+          // });
         }
         modalSubs.unsubscribe();
       }
@@ -335,20 +358,19 @@ export class LeadComponent implements OnInit, OnDestroy {
   isHighlighted(item:any):string {
     const hightLightedData = this.utility.getOpenLeadHighLighted();
     if(this.currentStage == "open" && Object.keys(hightLightedData).length>0 && hightLightedData.hasOwnProperty("open")){
-      const classname = hightLightedData["open"].includes(item["leadid"])? "already-worked": "";
+      const latestLeadId = hightLightedData.hasOwnProperty("openMark") ? (hightLightedData["openMark"]).at(-1) : null;
+      const classname = (latestLeadId!=null && item["leadid"]==latestLeadId) ? "bg-pink-200"//"latest-mark"
+                      : (hightLightedData["open"].includes(item["leadid"]))? "already-worked": "";
       return classname;
     } else return "";
   }
 
-  // followupCond(item:any):boolean {
-  //   return item.key=="last_followup"; //(item.key=='email' && this.currentStage=="open");
-  // }
 
   onFilterLead(e:any) {this.copyLeadList = e;}
 
   onChangeSource(e:any, type:string) {
     const value = e.target.value;
-    if(value == "") {this.paginateTableData();}//{this.copyLeadList = JSON.parse(JSON.stringify(this.leadList));}
+    if(value == "") {this.copyLeadList = JSON.parse(JSON.stringify(this.leadList));}//{this.paginateTableData();}
     else {
       if(type == "source") {
         this.copyLeadList = this.leadList.filter((item:any) => item["source"]==value);
@@ -438,7 +460,7 @@ export class LeadComponent implements OnInit, OnDestroy {
     else if(this.currentStage=="tax") return infoModalTaxKeyVal[key];
   }
   getInfoValues(value:string|any) {
-    if(["",null,undefined," "].includes(value)) return "N/A";
+    if(["",null,undefined," ","~"].includes(value)) return "N/A";
     else return value;
   }
 }

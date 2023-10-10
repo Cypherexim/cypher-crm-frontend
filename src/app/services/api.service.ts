@@ -25,6 +25,10 @@ export class ApiService {
     return this.http.get(`${environment.apiurl}/user/updateInvoiceNum?column=${colName}`);
   }
 
+  resetInvoiceNumAPI() {
+    return this.http.get(`${environment.apiurl}/user/resetInvoiceNumber`);
+  }
+
   //****************************** APIs for Leads ******************************//
   getAllOpenLeadsAPI(id:number|string) {
     return this.http.get(`${environment.apiurl}/lead/getOpenLeads?userId=${id}`);
@@ -93,6 +97,10 @@ export class ApiService {
 
   updateStatusLeadAPI(body:any) {
     return this.http.post(`${environment.apiurl}/lead/updateStatusLead`, body);
+  }
+
+  updateTaxInvoiceLeadAPI(body:any) {
+    return this.http.post(`${environment.apiurl}/lead/updateTaxInvoiceLead`, body);
   }
 
   getAllStatusLeadsAPI(id:number|string) {
@@ -166,4 +174,5 @@ export class ApiService {
   sendTaxInvoiceEmailAPI(apiObj:any) {
     return this.http.post(`${environment.apiurl}/user/sendTaxInvoiceEmail`, apiObj);
   }
+
 }

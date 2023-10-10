@@ -39,10 +39,17 @@ div.lead-container{
                 letter-spacing: -0.3px;
                 height: 7.5%;
             }
+            div.total{
+                top: 2.5%;
+                span{
+                    font-size: 17px;
+                    font-weight: 500;
+                }
+            }
             div.table-container{
-                height: 80%;
+                height: 91%;
                 overflow: auto;
-                table{
+                table {
                     border-left: 1px solid darkgray;
                     caption-side: bottom;
                     border-collapse: collapse;
@@ -83,7 +90,8 @@ div.lead-container{
                                 border-right: 1px solid darkgray;
                                 border-bottom: 1px solid darkgray;
 
-                                &.already-worked{background-color: #fffbb6 !important;}
+                                &.already-worked{background-color: #fffbb6;}
+                                &.latest-mark{background-color: #FFCCCB;}
                                 i{
                                     cursor: pointer;
                                     font-size: 18px;
@@ -120,7 +128,7 @@ div.lead-container{
                     }
                 }
             }
-            div.pagination-box{height: 9%;}
+            // div.pagination-box{height: 9%;}
         }
     }
 

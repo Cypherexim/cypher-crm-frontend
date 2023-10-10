@@ -60,6 +60,8 @@ export class UtilitiesService {
     } else return false;
   }
 
+  
+
 
   timeConverter(time: any) {
     // Check correct time format and split into components

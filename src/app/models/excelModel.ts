@@ -24,7 +24,7 @@ export class CSVModel {
     transTime: string = "";
     plan_name: string = "";
     plan_price: string = "";
-    performa_num:number = 0;
+    performa_num:string = "";
     reference:{
         name: string,
         company: string,
