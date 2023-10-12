@@ -20,13 +20,10 @@
                         <option value="{{item?.id}}" *ngFor="let item of assigneeList">{{item?.name}}</option>
                     </select>
                     <input class="mr-1" type="text" placeholder="User Name" [(ngModel)]="userName" />
-                    <!-- <div class="username flex">
-                        <select><option value="Mr.">Mr.</option><option value="Ms.">Ms.</option></select>
-                    </div> -->
                     <input *ngIf="currentStage=='tax'" class="mr-1" type="text" placeholder="Invoice Number" [(ngModel)]="taxNum" />
                     <input type="date" [(ngModel)]="invoiceDate" onfocus="this.showPicker()" />
     
-                    <span class="{{item}} absolute" *ngFor="let item of labels">{{item | titlecase}}</span> 
+                    <span class="{{currentStage=='tax'? 'all '+item: 'not-all '+item}} absolute" *ngFor="let item of labels">{{item | titlecase}}</span> 
                 </div>
             </section>
     
@@ -169,9 +166,9 @@
         </div>
     
         <div class="submit-btn w-full text-right absolute bg-white bottom-0">
-            <button pButton pRipple label="Print" title="Print Tax Invoice" class="p-button-danger mr-2" (click)="onClickPrint()"></button>
-            <button pButton pRipple label="Email" title="Send Tax Invoice" class="p-button-primary mr-2" (click)="onSendEmail()" *ngIf="currentStage=='tax'"></button>
-            <button title="Create new tax invoice" *ngIf="!isAddingNewPI" pButton pRipple label="{{currentStage=='tax'?'Update':'Submit'}}" class="p-button-success mr-2" (click)="onSubmit(currentStage=='tax'?'tax':'')"></button>
+            <button *ngIf="!isAddingNewPI" title="Print Tax Invoice" pButton pRipple label="Print" class="p-button-danger mr-2" (click)="onClickPrint()"></button>
+            <button title="Send Tax Invoice" pButton pRipple label="Email" class="p-button-primary mr-2" (click)="onSendEmail()" *ngIf="currentStage=='tax'"></button>
+            <button title="Create new tax invoice" *ngIf="!isAddingNewPI" pButton pRipple label="{{currentStage=='tax'?'Update':'Submit'}}" class="p-button-success mr-2" (click)="onSubmit()"></button>
             <button title="Create new PI" *ngIf="isAddingNewPI" pButton pRipple label="Submit" class="p-button-success mr-2" (click)="onClickNewAdd()"></button>
             <button pButton pRipple label="Cancel" class="p-button-secondary" (click)="onDismissModal()"></button>
         </div>

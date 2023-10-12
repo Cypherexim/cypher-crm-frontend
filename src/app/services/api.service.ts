@@ -13,6 +13,10 @@ export class ApiService {
     return this.http.post(`${environment.apiurl}/user/login`, body);
   }
 
+  logoutAPI(body:any) {
+    return this.http.post(`${environment.apiurl}/user/logout`, body);
+  }
+
   getAllUsersAPI(id:number|string) {
     return this.http.get(`${environment.apiurl}/user/getAllUsers`);//?id=${id}
   }
@@ -27,6 +31,10 @@ export class ApiService {
 
   resetInvoiceNumAPI() {
     return this.http.get(`${environment.apiurl}/user/resetInvoiceNumber`);
+  }
+
+  otpWiseLoginAPI(otp:number) {
+    return this.http.get(`${environment.apiurl}/user/sendOtpPass?otp=${otp}`);
   }
 
   //****************************** APIs for Leads ******************************//

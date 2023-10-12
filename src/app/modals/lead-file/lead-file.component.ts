@@ -81,10 +81,11 @@ export class LeadFileComponent implements OnInit, OnDestroy{
           this.isApiInProcess = true;
           const emailList:any = [];
           const allExistEmails = res?.result;
+          allExistEmails.splice(allExistEmails.indexOf(""), 1); //temporary
           const arrLen = allExistEmails.length;
 
           for(let i=0; i<arrLen; i++) { emailList.push(allExistEmails[i]["email"]); }
-
+          
           const filteredRecords = csvDataList.filter((item:any) => !emailList.includes(item["email"]));
 
           callBack(filteredRecords);

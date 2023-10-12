@@ -344,7 +344,7 @@ export class LeadEditComponent implements OnDestroy, OnInit {
         const username = (this.getSingleUser(Number(this.assignedUser))[0]["name"]).toUpperCase();
         this.utility.showToastMsg("success", "SUCCESS", `Lead assigned to ${username} successfully!`);
         this.callback.emit({ msg: res?.msg, isMsg: false });
-      }, error: (err: any) => { }
+      }, error: (err: any) => console.log(err)
     });
   }
 

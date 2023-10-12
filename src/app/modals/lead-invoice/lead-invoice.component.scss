@@ -60,10 +60,14 @@ div.invoice-container{
                         top: -45%;
                         color: #6b6b6b;
                     }
-                    span.issued_By{left: 0;}
-                    span.username{left: 19.5%;}
-                    span.invoice_No{left: 48.3%;}
-                    span.invoice_Date{left: 77.3%;}
+                    span.all.issued_By{left: 0;}
+                    span.all.username{left: 19.5%;}
+                    span.all.invoice_No{left: 48.3%;}
+                    span.all.invoice_Date{left: 77.3%;}
+
+                    span.not-all.issued_By{left: 0;}
+                    span.not-all.username{left: 27%;}
+                    span.not-all.invoice_Date{left: 68%;}
                 }
             }
     

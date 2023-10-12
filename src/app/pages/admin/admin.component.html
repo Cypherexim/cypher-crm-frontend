@@ -1,16 +1,20 @@
-<div *ngIf="false" class="admin-container flex justify-content-center align-items-center w-full h-full">
-    <div class="grid row-gap-5 w-7">
+<div *ngIf="true" class="admin-container flex justify-content-center align-items-center w-full h-full">
+    <div class="grid row-gap-5 w-7" *ngIf="!isRouterActivate">
         <div class="col-12"><h1 class="text-center">Admin Panel</h1></div>
-        <div class="col-4" *ngFor="let item of [1,2,3,4,5,6]">
+        <div class="col-4" (click)="isRouterActivate=true" [routerLink]="item.path" [pTooltip]="item.title" *ngFor="let item of adminOptions">
             <div class="active-shadow option-tab bg-white w-11 mx-auto flex align-items-center justify-content-center">
                 <i class="fa-solid fa-user-plus"></i>
-                <div class="option">Add User</div>
+                <div class="option">{{item.lable}}</div>
             </div>
         </div>
+    </div>
+
+    <div class="w-full h-full" *ngIf="isRouterActivate">
+        <router-outlet (activate)="onActivateRouter($event)" (deactivate)="onDeactivateRouter()"></router-outlet>
     </div>
 </div>
 
 
-<div class="w-full h-full bg-white flex justify-content-center align-items-center">
+<div *ngIf="false" class="w-full h-full bg-white flex justify-content-center align-items-center">
     <img src="assets/images/under.gif" alt="" />
 </div>

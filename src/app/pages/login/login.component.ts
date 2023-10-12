@@ -4,6 +4,8 @@ import { CSVModel } from 'src/app/models/excelModel';
 import { ApiService } from '../../services/api.service';
 import { UtilitiesService } from '../../services/utilities.service';
 import { EventsService } from '../../services/events.service';
+import { Subscription } from 'rxjs';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-login',
@@ -15,11 +17,19 @@ export class LoginComponent implements OnInit{
     private router: Router,
     private apiService: ApiService,
     private utility: UtilitiesService,
-    private eventService: EventsService
+    private eventService: EventsService,
+    private datePipe: DatePipe
   ) {}
 
   loginBody = {username: "", password: ""};
   loginBtn:string = "login";
+
+  apiSubscription1:Subscription = new Subscription();
+  apiSubscription2:Subscription = new Subscription();
+
+  otpVal:number = 0;
+  otpBtn:string = "get otp";
+  hasUsernameTyped:boolean = false;
 
   leadDataBody:CSVModel = new CSVModel();
 
@@ -27,7 +37,12 @@ export class LoginComponent implements OnInit{
 
   onLoginSubmit() {
     this.loginBtn = 'logging in...';
-    this.apiService.loginApi(this.loginBody).subscribe({
+    const today = new Date();
+    const date = this.datePipe.transform(today, 'MM-dd-yyyy');
+    const time = this.datePipe.transform(today, 'HH:mm');
+    const bodyObj = {date, time, ...this.loginBody};
+
+    this.apiService.loginApi(bodyObj).subscribe({
       next: (res:any) => {
         if(!res.error) {
           this.loginBtn = 'login';
@@ -39,9 +54,28 @@ export class LoginComponent implements OnInit{
       },
       error: (err:any) => {
         this.loginBtn = 'login';
-        alert(err["error"]["msg"])
+        alert(err["error"]["msg"]);
       }
     })
+  }
+
+  onLoginOtp() {
+    const {username, password} = this.loginBody;
+    if(password=="" && username != "") {
+      this.otpVal = Math.floor(Math.random()*1000000);
+      this.apiSubscription1 = this.apiService.otpWiseLoginAPI(this.otpVal).subscribe({
+        next: (res:any) => {
+          if(!res?.error) {
+            console.log(res.result);
+            this.hasUsernameTyped = true;
+            this.otpBtn = "submit";
+          }
+        }, error: (err:any) => console.log(err)
+      });
+    } else {
+      if(Number(password) == this.otpVal) alert("Yes you can log in");
+      else alert("OTP is wrong");
+    }
   }
 
   followupLeadsDeadLineCheckup() {

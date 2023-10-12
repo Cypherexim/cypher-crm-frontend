@@ -38,6 +38,8 @@ import { LeadInvoiceComponent } from './modals/lead-invoice/lead-invoice.compone
 import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
 import { MousemoveDirective } from './common/mousemove.directive';
 import { PdfTemplateComponent } from './components/pdf-template/pdf-template.component';
+import { AttendanceComponent } from './pages/admin/pages/attendance/attendance.component';
+import { AddNewSomthingComponent } from './pages/admin/pages/add-new-somthing/add-new-somthing.component';
 
 @NgModule({
   declarations: [
@@ -57,6 +59,8 @@ import { PdfTemplateComponent } from './components/pdf-template/pdf-template.com
     PageNotFoundComponent,
     MousemoveDirective,
     PdfTemplateComponent,
+    AttendanceComponent,
+    AddNewSomthingComponent,
   ],
   imports: [
     NgbModule,

@@ -35,8 +35,9 @@ export class SharedComponent {
     this.eventSubscription2 = this.eventService.passPdfData.subscribe({
       next: (res:any) => {
         if(Object.keys(res).length>0) {
+          const amtInStr = this.utility.convertNumberToWords(res["amount"][1]);
           res["bankData"] = JSON.parse(res["bankData"]);
-          res["amoutInStr"] = this.utility.convertNumberToWords(res["amount"][1]);
+          res["amoutInStr"] = amtInStr!=""? `Rupees ${amtInStr} Only`: amtInStr;
           this.isUserFromDelhi = res["gstNumber"].substring(0,2)=="07";
           this.isProformaInvoice = res["currentStage"]=="invoice";
           this.pdfDocData = res;

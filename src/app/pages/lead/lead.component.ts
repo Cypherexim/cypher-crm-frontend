@@ -243,6 +243,7 @@ export class LeadComponent implements OnInit, OnDestroy {
     (<LeadEditComponent>modalRef.componentInstance).onBindLeadData(itemData);
     (<LeadEditComponent>modalRef.componentInstance).piNum = this.piNum;
     const eventRef = (<LeadEditComponent>modalRef.componentInstance).callback.subscribe((res:any) => {
+      console.log(res);
       if(res.isMsg) {
         const response = (<string>res.msg).toLowerCase();
         const flags = ["insert", "update", "delete"].filter((item:string) => response.includes(item));

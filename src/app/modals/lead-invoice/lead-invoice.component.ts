@@ -27,6 +27,7 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
   apiSubscription3:Subscription = new Subscription();
   apiSubscription4:Subscription = new Subscription();
   apiSubscription5:Subscription = new Subscription();
+  apiSubscription6:Subscription = new Subscription();
   eventSubscription:any;
 
   currentStage:string = "";
@@ -116,6 +117,8 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
     this.apiSubscription2.unsubscribe();
     this.apiSubscription3.unsubscribe();
     this.apiSubscription4.unsubscribe();
+    this.apiSubscription5.unsubscribe();
+    this.apiSubscription6.unsubscribe();
   }
 
   onDismissModal = () => this.activeModal.dismiss('Cross click');
@@ -172,7 +175,7 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
     this.tableData.gstAmt.igst = ((Number(this.tableData.rate) * igst) / 100)*this.tableData.qty;
   }
 
-  onSubmit(submittedBy="invoice") {
+  onSubmit() {
     if(this.currentStage=="tax") {
       this.onUpdateInvoiceDetails();
       return;
@@ -198,7 +201,7 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
               if(!res2.error) {
 
                 if(this.isMailNeeded=="yes") {
-                  if(submittedBy=="invoice") {
+                  if(this.currentStage!="tax") {
                     this.apiSubscription3 = this.apiService.sendInvoiceEmailAPI(emailObj).subscribe({
                       next: (res3:any) => {
                         if(!res3.error) finalStep("Proforma Invoice has been updated to Tax Invoice and Email has been sent successfully.");
@@ -262,7 +265,7 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
   }
 
   getCompaniesList() {
-    this.apiSubscription3 = this.apiService.getCompaniesListAPI().subscribe({
+    this.apiSubscription6 = this.apiService.getCompaniesListAPI().subscribe({
       next: (res:any) => {
         if(!res?.error) {
           this.companiesList = res?.result;
