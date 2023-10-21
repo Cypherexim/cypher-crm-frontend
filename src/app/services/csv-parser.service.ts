@@ -22,7 +22,7 @@ export class CsvParserService {
 
       reader.onload = async() => {
         const csvData = reader.result;
-        const csvRecordsArray = (<string>csvData).split(/\r\n|\n/);
+        const csvRecordsArray = await (<string>csvData).split(/\r\n|\n/).filter((row:string) => ![",,,,,,,,,,,",""].includes(row));
 
         const headersRow = this.getHeaderArray(csvRecordsArray);
 
@@ -58,10 +58,10 @@ export class CsvParserService {
         csvRecord.company = curruntRecord[1].trim();
         csvRecord.designation = curruntRecord[2].trim();
         csvRecord.department = curruntRecord[3].trim();
-        csvRecord.address = curruntRecord[4].trim().replace(new RegExp("_ ", "g"), "_").split("_").toLocaleString();
+        csvRecord.address = curruntRecord[4].trim().replace(new RegExp("~ ", "g"), "~").split("~").toLocaleString();
         csvRecord.location = curruntRecord[5].trim();
-        csvRecord.contact = curruntRecord[6].trim().replace(new RegExp("_ ", "g"), "_").split("_").toLocaleString();
-        csvRecord.email = curruntRecord[7].trim().replace(new RegExp("_ ", "g"), "_").split("_").toLocaleString().toLowerCase();
+        csvRecord.contact = curruntRecord[6].trim().replace(new RegExp("~ ", "g"), "~").split("~").toLocaleString();
+        csvRecord.email = curruntRecord[7].trim().replace(new RegExp("~ ", "g"), "~").split("~").toLocaleString().toLowerCase();
         csvRecord.source = curruntRecord[8].trim();
         csvRecord.gst = curruntRecord[9].trim();
         csvRecord.pan = curruntRecord[10].trim();
@@ -82,7 +82,7 @@ export class CsvParserService {
     for(let j=0; j<splittedLetters.length; j++) { if(splittedLetters[j] == '"') allIndices.push(j); }
     for(let k=1; k<=allIndices.length; k++) {
       if(k%2 == 0) {
-        const quotedPart = cellVal.substring(allIndices[k-2], allIndices[k-1]).replace(new RegExp(',','g'), "_").replace(new RegExp('"','g'), " ");
+        const quotedPart = cellVal.substring(allIndices[k-2], allIndices[k-1]).replace(new RegExp(',','g'), "~").replace(new RegExp('"','g'), " ");
         const firtPart = cellVal.substring(0, allIndices[k-2]).replace(new RegExp('"','g'), " ");
         const lastpart = cellVal.substring(allIndices[k-1], cellVal.length).replace(new RegExp('"','g'), " ");
         cellVal = firtPart + quotedPart + lastpart;

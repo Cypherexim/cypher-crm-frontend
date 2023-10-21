@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
@@ -9,6 +10,7 @@ export class UtilitiesService {
 
   constructor(
     private router: Router,
+    private datePipe: DatePipe,
     private messageService: MessageService
   ) { }
 
@@ -19,14 +21,21 @@ export class UtilitiesService {
       this.router.navigate(["login"]);
     } else {
       const parsedUser = JSON.parse(currentUser || "{}");
-      const currentTime = new Date().toLocaleDateString();
-      const loginTime = new Date(parsedUser?.last_login).toLocaleDateString();
-
-      // if(currentTime != loginTime) {
-      //   localStorage.setItem("crm_user", "{}");
-      //   this.router.navigate(["login"]);
-      // }
+      if(parsedUser?.loginDate) {
+        const dateArr = [new Date(), new Date(parsedUser?.loginDate)];
+        const datesArr = [
+          this.datePipe.transform(dateArr[0], "MM/dd/yyyy"),
+          this.datePipe.transform(dateArr[1], "MM/dd/yyyy")
+        ];
+  
+        if(datesArr[0] != datesArr[1]) this.onNavigateToLogin();
+      } else this.onNavigateToLogin();
     }
+  }
+
+  onNavigateToLogin() {
+    localStorage.setItem("crm_user", "{}");
+    this.router.navigate(["login"]);
   }
 
   fetchUserDetails() {
@@ -74,6 +83,7 @@ export class UtilitiesService {
     }
     return time.join(''); // return adjusted time or original string
   }
+
 
   createTimeFormat(dateTime: any = null) {
     const addZero = (digit: number) => digit < 10 ? "0" + digit : digit;
@@ -216,5 +226,5 @@ export class UtilitiesService {
         words_string = words_string.split("  ").join(" ");
     }
     return words_string;
-}
+  }
 }

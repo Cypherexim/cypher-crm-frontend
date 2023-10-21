@@ -105,8 +105,8 @@ export class LeadEditComponent implements OnDestroy, OnInit {
     }
 
     this.excelModelVal.username = this.leadData["name"];
-    this.excelModelVal.contact = (this.leadData["contact"])//.split(",")[0];//temporarily
-    this.excelModelVal.email = (this.leadData["email"])//.split(",")[0];//temporarily
+    this.excelModelVal.contact = (this.leadData["contact"]);
+    this.excelModelVal.email = (this.leadData["email"]);
     this.excelModelVal.company = this.leadData["company_name"];
     this.excelModelVal.designation = this.leadData["designation"];
     this.excelModelVal.department = this.leadData["department"];
@@ -166,7 +166,7 @@ export class LeadEditComponent implements OnDestroy, OnInit {
         const idPosition = (hightLightedData["openMark"]).indexOf(leadId);
         (hightLightedData["openMark"]).splice(idPosition, 1);
       } 
-      (hightLightedData["openMark"]).push(leadId);      
+      (hightLightedData["openMark"]).push(leadId);
     } else { hightLightedData["openMark"] = [leadId]; }
     this.utility.setOpenLeadHighLighted(hightLightedData);
   }
@@ -194,8 +194,7 @@ export class LeadEditComponent implements OnDestroy, OnInit {
           this.utility.showToastMsg("success", "SUCCESS", `Lead Updated Successfully!`);
           this.callback.emit({ msg: res?.msg, isMsg: true });
         }
-      },
-      error: (err: any) => { console.log(err); }
+      }, error: (err: any) => { console.log(err); }
     });
   }
 
@@ -273,7 +272,7 @@ export class LeadEditComponent implements OnDestroy, OnInit {
         next: (res: any) => {
           if (!res.error) {
             this.deleteAnyTypeLead();
-            if(this.currentLeadPage=="open") this.removeHightlightedLead(this.excelModelVal.leadId);
+            // if(this.currentLeadPage=="open") this.removeHightlightedLead(this.excelModelVal.leadId);
             this.utility.showToastMsg("success", "SUCCESS", `Follow-up Lead Added successfully!`);
           }
         },
@@ -336,8 +335,9 @@ export class LeadEditComponent implements OnDestroy, OnInit {
     this.excelModelVal.plan_price = this.planPrice;
     this.excelModelVal.gst = this.gstNum;
     this.excelModelVal.performa_num = this.piNum;
+    const apiBody = {assigningFrom: "addInvoice", ...this.excelModelVal};//to know if insertion is from "addInvoice" or "addPI"
 
-    this.apiSubscription2 = this.apiService.addInvoiceLeadAPI(this.excelModelVal).subscribe({
+    this.apiSubscription2 = this.apiService.addInvoiceLeadAPI(apiBody).subscribe({
       next: async (res: any) => {
         await this.addToStatusLead("invoice");
         this.deleteAnyTypeLead();
@@ -369,6 +369,7 @@ export class LeadEditComponent implements OnDestroy, OnInit {
       next: (res: any) => {
         if (!res.error) {
           this.isSubmitClicked = false;
+          if(this.currentLeadPage=="open") this.removeHightlightedLead(this.excelModelVal.leadId);
           this.callback.emit({ msg: res?.msg, isMsg: true });
           this.onDismissModal();
         }

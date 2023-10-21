@@ -78,6 +78,7 @@ export class LeadbarComponent implements OnInit, OnDestroy {
         const filteredCsvRecords = csvRecords.filter((item:any) => !this.existingEmails.includes(item["email"]));
         
         if(filteredCsvRecords.length==0) {
+          fileInp.value = "";
           this.utility.showToastMsg("error", "Exist Email", "All emails are already exist!");
           return;
         }
@@ -85,6 +86,7 @@ export class LeadbarComponent implements OnInit, OnDestroy {
         const apiBody = { excelJson: JSON.stringify(csvRecords) };
         this.apiSubscription1 = this.apiService.addMultiOpenLeadAPI(apiBody).subscribe({
           next: (res:any) => {
+            fileInp.value = "";
             this.eventService.onCompleteInsertion.next("Inserted");
             this.utility.showToastMsg("success", "SUCCESS", "Leads are inserted successfully!");
           }, error: (err:any) => { console.log(err); }
@@ -95,7 +97,7 @@ export class LeadbarComponent implements OnInit, OnDestroy {
 
   onFilterLeads() {
     const toLower = (item:any):string => typeof item=="string" ? item.toLowerCase() : item+"";
-    const filteredList = this.leadList.filter((item:any) => (Object.values(item).filter((item2:any) => toLower(item2).includes(this.searchInp.toLowerCase()))).length>0);
+    const filteredList = this.leadList.filter((item:any) => (Object.values(item).filter((item2:any) => toLower(item2).includes(this.searchInp.trim().toLowerCase()))).length>0);
     this.callBack.emit(filteredList);
   }
 }

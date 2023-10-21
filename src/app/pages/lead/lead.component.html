@@ -18,14 +18,35 @@
                     <option value="{{item}}" *ngFor="let item of remarkList">{{item | titlecase}}</option>
                 </select>
             </div>
+
             <h1 class="w-full mb-0 flex justify-content-center align-items-center mb-2">{{(currentStage=='open'?'Today Follow-up':currentStage=='follow-up'? 'Next Follow-up': currentStage=='invoice'?'proforma':currentStage) | titlecase}} {{!titleCondition.includes(currentStage)?'Leads':'Invoices'}}</h1>
             
-            <div class="total absolute right-0 mr-3"><span>Total:</span> {{leadList.length}}</div>
+            <div class="right-hand-options flex align-items-end absolute right-0">
+                <div *ngIf="currentStage=='open' && isUserAllowedToAssign" class="multi-select relative mr-3 surface-ground flex align-items-center pointer-events-{{assignedUserId!=''?'none':'auto'}}">
+                    <div (click)="onClickAssign()" class="flex align-items-center">
+                        <div class="indicator {{isAssignToActive?'active':''}}"></div>
+                        <span class="select-none">Assign To</span>
+                    </div>
+                    <div class="side-icon {{isAssignToActive?'active':''}}"><i class="pi pi-angle-{{showAssignee?'up':'down'}}" (click)="showAssignee=!showAssignee"></i></div>
+
+                    <div class="drop-list absolute w-full text-center left-0" *ngIf="showAssignee">
+                        <div class="list-item" *ngFor="let item of assigneeList" (click)="onAssignItem(item)">
+                            <div *ngIf="assignedUserId!=item?.id" class="item w-full {{assignedUserId!=''?'opacity-50':''}}">{{item?.name | titlecase}}</div>
+                            <div *ngIf="assignedUserId==item?.id" class="item w-full"><img src="assets/images/assign-loader.gif" alt=""/></div>
+                        </div>
+                    </div>
+                </div>
+    
+                <div class="total mr-3"><span>Total:</span> {{leadList.length}}</div>
+            </div>
+
+
 
             <div class="table-container w-full" *ngIf="copyLeadList.length>0">
                 <table class="w-full relative">
                     <thead class="sticky top-0 z-5">
                         <th *ngIf="['invoice','tax','status'].includes(currentStage)" class="sticky left-0"></th>
+                        <th *ngIf="isAssignToActive" class="px-2"><input type="checkbox" class="multi-check" (click)="selectAllCheck($event)"  /></th>
                         <th>S.no.</th>
                         <th *ngFor="let item of tableHeads" class="text-center">
                             <div class="title-name w-full flex align-items-center">
@@ -38,6 +59,7 @@
                     <tbody>
                         <tr *ngFor="let item of copyLeadList;let i=index">
                             <td *ngIf="['invoice','tax','status'].includes(currentStage)" class="sticky left-0"><i class="fa-solid fa-circle-info" (click)="onClickInfoIcon(item)"></i></td>
+                            <td *ngIf="isAssignToActive" class="px-2"><input class="multi-check" type="checkbox" [checked]="isSelectedAll" (click)="onSelectSingleLead($event, item['id'])" /></td>
                             <td class="{{isHighlighted(item)}}">{{(i+1)}}</td>
                             <td class="{{isHighlighted(item)}} text-start" [pTooltip]="['remarks'].includes(item2.key)?item[item2.key]:''" tooltipPosition="bottom" *ngFor="let item2 of tableHeads">
                                 <!-- {{isFollowedUp(item)}} -->
@@ -73,7 +95,7 @@
                     <i class="pi pi-spin pi-spinner mb-2"></i>
                     <span>Loading...</span>
                 </div>
-                <div *ngIf="!isApiInProcess" class="empty-data flex justify-content-center align-items-center">No Data Available</div>
+                <div *ngIf="!isApiInProcess" class="empty-data flex justify-content-center align-items-center">No Lead Available</div>
             </div>
         </div>
 
@@ -111,8 +133,21 @@
                 <!-- singleItemData -->
                 <div class="item flex align-items-center w-full" *ngFor="let item of itemObjKeys">
                     <div class="item-label w-4">{{getInfoLabels(item)}}</div>
-                    <div class="item-value w-8">{{getInfoValues(singleItemData[item])}}</div>
+                    <div class="item-value w-8">
+                        <span *ngIf="['email','contact'].includes(item)"><div class="mb-1" *ngFor="let item of getInfoValues(item, singleItemData[item])">{{item}}</div></span>
+                        <span *ngIf="!['email','contact'].includes(item)">{{getInfoValues(item, singleItemData[item])}}</span>
+                    </div>
                 </div>
+            </div>
+        </p-dialog>
+
+        <p-dialog id="dialog6" [(visible)]="visibleDialogue4" [closable]="false"  [modal]="true" [maximizable]="false" [draggable]="false" [resizable]="false" [style]="{width: '35vw', height: '45vh'}">
+            <span class="close absolute cursor-pointer"><i (click)="visibleDialogue4=false" class="pi pi-times"></i></span>
+            <p class="list-head sticky top-0 pt-2">These are the companies that are already exist in the server.</p>
+            <div class="list-container w-full h-10 px-3 pb-3 pt-2 overflow-auto">
+                <ul><li *ngFor="let item of alreadyExistCompanies">
+                    <div><span>{{item?.company}}</span></div>
+                </li></ul>
             </div>
         </p-dialog>
     </div>

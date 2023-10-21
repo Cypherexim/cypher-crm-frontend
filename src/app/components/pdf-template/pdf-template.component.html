@@ -33,21 +33,21 @@
 
         <div class="hr-line" style="width: 97%;margin: auto; height: 2.5px;margin-bottom: 5px;border-bottom: 3px solid gray;border-top: 1px solid gray;"></div>
         
-        <h2 style="width: 100%;text-align: center;letter-spacing: 1px;font-size: 20px;font-weight: 600;font-family: sans-serif;color: #403d3d;">{{isProformaInvoice? 'Proforma Inovice': 'Invoice'}}</h2>
+        <h2 style="width: 100%;text-align: center;letter-spacing: 1px;font-size: 20px;font-weight: 600;font-family: sans-serif;color: #403d3d;text-transform: uppercase;">{{isProformaInvoice? 'Proforma Inovice': 'Invoice'}}</h2>
 
         <div class="gstin" style="margin: auto; margin-bottom: 10px;width: 97%;">
             <table style="width: 100%;">
                 <tr>
                     <td>
                         <div style="font-size: 12px;letter-spacing: 0.5px;">
-                            <span style="font-weight: bold;margin-right:5px;">GSTIN:</span>07AAGCE41301ZS
+                            <span style="font-weight: bold;margin-right:5px;">GSTIN:</span>07AAGCE4130J1ZS
                         </div>
                     </td>
                     <td>
                         <div class="plno" style="font-size: 12px;letter-spacing: 0.5px;width: fit-content;float: right;">
-                            <!-- <div><span style="font-weight: bold;margin-right:5px;">PI No.:</span>{{orderNum}}</div> -->
-                            <div><span style="font-weight: bold;margin-right:5px;">Invoice No.:</span>{{invoiceData?.performaNum}}</div>
-                            <div><span style="font-weight: bold;margin-right:5px;">Date:</span>{{invoiceData?.invoiceDate}}</div>
+                            <div><span style="font-weight: bold;margin-right:5px;" *ngIf="!isProformaInvoice">Invoice No.:</span>{{invoiceData?.taxNum}}</div>
+                            <div><span style="font-weight: bold;margin-right:5px;">{{isProformaInvoice?'PI No':'Order No'}}.:</span>{{invoiceData?.performaNum}}</div>
+                            <div><span style="font-weight: bold;margin-right:5px;">Date:</span>{{invoiceData?.invoiceDate | date:'d MMM, y'}}</div>
                             <!-- <div><span style="font-weight: bold;margin-right:5px;">Valid till:</span>{{issueDate}}</div> -->
                         </div>
                     </td>
@@ -68,9 +68,10 @@
                         <div class="td-box">
                             <div>{{invoiceData?.clientName}}</div>
                             <div>{{invoiceData?.companyName}}</div>
-                            <div *ngIf="(invoiceData | json) != '{}' && invoiceData?.address[0]">{{invoiceData?.address[0]?.line1}}</div>
-                            <div *ngIf="(invoiceData | json) != '{}' && invoiceData?.address[0]">{{invoiceData?.address[0]?.line2}}</div>
+                            <div *ngIf="(invoiceData | json) != '{}' && invoiceData?.address[0]">{{invoiceData?.address[1]?.line1}}</div>
+                            <div *ngIf="(invoiceData | json) != '{}' && invoiceData?.address[0]">{{invoiceData?.address[1]?.line2}}</div>
                             <div>GSTIN:&nbsp;&nbsp;{{invoiceData?.gstNumber}}</div>
+                            <div>Email:&nbsp;&nbsp;{{invoiceData?.clientEmail}}</div>
                             <div>Phone:&nbsp;&nbsp;{{invoiceData?.clientPhone}}</div>
                         </div>
                     </td>
@@ -78,9 +79,10 @@
                         <div class="td-box">
                             <div>{{invoiceData?.clientName}}</div>
                             <div>{{invoiceData?.companyName}}</div>
-                            <div *ngIf="(invoiceData | json) != '{}' && invoiceData?.address[1]">{{invoiceData?.address[1]?.line1}}</div>
-                            <div *ngIf="(invoiceData | json) != '{}' && invoiceData?.address[1]">{{invoiceData?.address[1]?.line1}}</div>
+                            <div *ngIf="(invoiceData | json) != '{}' && invoiceData?.address[1]">{{invoiceData?.address[0]?.line1}}</div>
+                            <div *ngIf="(invoiceData | json) != '{}' && invoiceData?.address[1]">{{invoiceData?.address[0]?.line2}}</div>
                             <div>GSTIN:&nbsp;&nbsp;{{invoiceData?.gstNumber}}</div>
+                            <div>Email:&nbsp;&nbsp;{{invoiceData?.clientEmail}}</div>
                             <div>Phone:&nbsp;&nbsp;{{invoiceData?.clientPhone}}</div>
                         </div>
                     </td>
@@ -114,12 +116,12 @@
                     <td style="border: 1px solid;font-size: 12px;padding: 3px;">{{invoiceData?.hsnSac}}</td>
                     <td style="border: 1px solid;font-size: 12px;padding: 3px;">{{invoiceData?.qty}}</td>
                     <td style="border: 1px solid;font-size: 12px;padding: 3px;">{{invoiceData?.unit}}</td>
-                    <td *ngIf="(invoiceData | json) != '{}' && invoiceData?.amount[0]" style="border: 1px solid;font-size: 12px;padding: 3px;">{{invoiceData?.amount[0]}}</td>
-                    <td style="border: 1px solid;font-size: 12px;padding: 3px;">{{invoiceData?.taxAmt}}</td>
-                    <td style="border: 1px solid;font-size: 12px;padding: 3px;" *ngIf="isUserFromDelhi">{{invoiceData?.gstAmt?.cgstAmt}}</td>
-                    <td style="border: 1px solid;font-size: 12px;padding: 3px;" *ngIf="isUserFromDelhi">{{invoiceData?.gstAmt?.sgstAmt}}</td>
-                    <td style="border: 1px solid;font-size: 12px;padding: 3px;" *ngIf="!isUserFromDelhi">{{invoiceData?.gstAmt?.igstAmt}}</td>
-                    <td *ngIf="(invoiceData | json) != '{}' && invoiceData?.amount[1]" style="border: 1px solid;font-size: 12px;padding: 3px;">{{invoiceData?.amount[1]}}</td>
+                    <td *ngIf="(invoiceData | json) != '{}' && invoiceData?.amount[0]" style="border: 1px solid;font-size: 12px;padding: 3px;">{{numToStr(invoiceData?.amount[0])}}</td>
+                    <td *ngIf="(invoiceData | json) != '{}' && invoiceData?.amount[0]" style="border: 1px solid;font-size: 12px;padding: 3px;">{{numToStr(invoiceData?.amount[0])}}</td>
+                    <td style="border: 1px solid;font-size: 12px;padding: 3px;" *ngIf="isUserFromDelhi">{{numToStr(invoiceData?.gstTax?.cgst)}}%</td>
+                    <td style="border: 1px solid;font-size: 12px;padding: 3px;" *ngIf="isUserFromDelhi">{{numToStr(invoiceData?.gstTax?.sgst)}}%</td>
+                    <td style="border: 1px solid;font-size: 12px;padding: 3px;" *ngIf="!isUserFromDelhi">{{numToStr(invoiceData?.gstTax?.igst)}}%</td>
+                    <td *ngIf="(invoiceData | json) != '{}' && invoiceData?.amount[1]" style="border: 1px solid;font-size: 12px;padding: 3px;">{{numToStr(invoiceData?.amount[1])}}</td>
                 </tr>
             </tbody>
         </table>
@@ -130,7 +132,7 @@
                     <td style="border-right: 1px solid;font-size: 12px;padding: 3px;">Bank Details:</td>
                     <td style="font-size: 12px;padding: 3px;">Total Proforma Invoice Amount in Words:</td>
                     <td style="border: 1px solid;font-size: 12px;padding: 3px;">Total Amount before Tax (₹)</td>
-                    <td style="border: 1px solid;font-size: 12px;padding: 3px;" *ngIf="(invoiceData | json) != '{}' && invoiceData?.amount[0]">{{invoiceData?.amount[0]}}</td>
+                    <td style="border: 1px solid;font-size: 12px;padding: 3px;" *ngIf="(invoiceData | json) != '{}' && invoiceData?.amount[0]">{{numToStr(invoiceData?.amount[0])}}</td>
                 </tr>
                 <tr>
                     <td rowspan="3" style="border-right: 1px solid;font-size: 12px;padding: 3px;">
@@ -145,21 +147,21 @@
                         <span style="font-weight: 600;">{{invoiceData?.amoutInStr}}</span>
                     </td>
                     <td style="border: 1px solid;font-size: 12px;padding: 3px;">{{isUserFromDelhi? 'Add CGST (₹)': ''}}</td>
-                    <td style="border: 1px solid;font-size: 12px;padding: 3px;">{{isUserFromDelhi? invoiceData?.gstAmt?.cgstAmt: ''}}</td>
+                    <td style="border: 1px solid;font-size: 12px;padding: 3px;">{{isUserFromDelhi? numToStr(invoiceData?.gstAmt?.cgstAmt): ''}}</td>
                 </tr>
                 <tr *ngIf="isUserFromDelhi">
                     <td rowspan="2"></td>
                     <td style="border: 1px solid;font-size: 12px;padding: 3px;">Add SGST (₹)</td>
-                    <td style="border: 1px solid;font-size: 12px;padding: 3px;">{{invoiceData?.gstAmt?.sgstAmt}}</td>
+                    <td style="border: 1px solid;font-size: 12px;padding: 3px;">{{numToStr(invoiceData?.gstAmt?.sgstAmt)}}</td>
                 </tr>
                 <tr *ngIf="!isUserFromDelhi">
                     <td rowspan="2"></td>
                     <td style="border: 1px solid;font-size: 12px;padding: 3px;">Add IGST (₹)</td>
-                    <td style="border: 1px solid;font-size: 12px;padding: 3px;">{{invoiceData?.gstAmt?.igstAmt}}</td>
+                    <td style="border: 1px solid;font-size: 12px;padding: 3px;">{{numToStr(invoiceData?.gstAmt?.igstAmt)}}</td>
                 </tr>
                 <tr>
                     <td style="border: 1px solid;font-size: 12px;padding: 3px;font-weight: 600;">Grand Total (₹)</td>
-                    <td *ngIf="(invoiceData | json) != '{}' && invoiceData?.amount[1]" style="border: 1px solid;font-size: 12px;padding: 3px;">{{invoiceData?.amount[1]}}</td>
+                    <td *ngIf="(invoiceData | json) != '{}' && invoiceData?.amount[1]" style="border: 1px solid;font-size: 12px;padding: 3px;">{{numToStr(invoiceData?.amount[1])}}</td>
                 </tr>
             </tbody>
         </table>
@@ -225,13 +227,13 @@
                 <tbody>
                     <tr>
                         <td style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;">{{invoiceData?.hsnSac}}</td>
-                        <td style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;">{{invoiceData?.taxAmt}}</td>
-                        <td style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;" *ngIf="isUserFromDelhi">{{invoiceData?.gstTax?.cgst}}</td>
-                        <td style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;" *ngIf="isUserFromDelhi">{{invoiceData?.gstAmt?.cgstAmt}}</td>
-                        <td style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;" *ngIf="isUserFromDelhi">{{invoiceData?.gstTax?.sgst}}</td>
-                        <td style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;" *ngIf="isUserFromDelhi">{{invoiceData?.gstAmt?.sgstAmt}}</td>
-                        <td style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;" *ngIf="!isUserFromDelhi">{{invoiceData?.gstTax?.igst}}</td>
-                        <td style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;" *ngIf="!isUserFromDelhi">{{invoiceData?.gstAmt?.igstAmt}}</td>
+                        <td *ngIf="(invoiceData | json) != '{}' && invoiceData?.amount[0]" style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;">{{numToStr(invoiceData?.amount[0])}}</td>
+                        <td style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;" *ngIf="isUserFromDelhi">{{numToStr(invoiceData?.gstTax?.cgst)}}</td>
+                        <td style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;" *ngIf="isUserFromDelhi">{{numToStr(invoiceData?.gstAmt?.cgstAmt)}}</td>
+                        <td style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;" *ngIf="isUserFromDelhi">{{numToStr(invoiceData?.gstTax?.sgst)}}</td>
+                        <td style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;" *ngIf="isUserFromDelhi">{{numToStr(invoiceData?.gstAmt?.sgstAmt)}}</td>
+                        <td style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;" *ngIf="!isUserFromDelhi">{{numToStr(invoiceData?.gstTax?.igst)}}</td>
+                        <td style="border: 1px solid;text-align: left;padding: 3px;font-size: 12px;" *ngIf="!isUserFromDelhi">{{numToStr(invoiceData?.gstAmt?.igstAmt)}}</td>
                     </tr>
                 </tbody>
             </table>

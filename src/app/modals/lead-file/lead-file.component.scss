@@ -1,4 +1,9 @@
 div.file-container{
+    span.close-btn{
+        padding: 10px;
+        i{font-size: 1.25rem;font-weight: bolder;cursor: pointer;}
+    }
+
     div.center-box{
         width: 70%;
         div.input-field{
@@ -28,6 +33,11 @@ div.file-container{
             margin-top: 15%;
             div.spinner-icon{
                 div{top: 23%;}
+            }
+            p{
+                font-size: 14px;
+                font-weight: 500;
+                padding-top: 10px;
             }
         }
     }

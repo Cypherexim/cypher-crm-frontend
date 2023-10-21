@@ -40,6 +40,7 @@ export class SharedComponent {
           res["amoutInStr"] = amtInStr!=""? `Rupees ${amtInStr} Only`: amtInStr;
           this.isUserFromDelhi = res["gstNumber"].substring(0,2)=="07";
           this.isProformaInvoice = res["currentStage"]=="invoice";
+          console.log(res)
           this.pdfDocData = res;
         }
       }, error: (err:any) => console.log(err)

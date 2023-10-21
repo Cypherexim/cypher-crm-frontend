@@ -23,7 +23,6 @@ export class HeaderComponent implements OnInit, OnDestroy{
 
   isLoginPage:boolean = false;
   isLogoutClicked:boolean = false;
-  today:Date = new Date();
   currentUserData:any = {};
   eventSubscription2:Subscription = new Subscription();
   apiSubscription:Subscription = new Subscription();
@@ -46,22 +45,29 @@ export class HeaderComponent implements OnInit, OnDestroy{
   }
 
   onClickLogout() {
+    const today = new Date();
     const {email, loginId:id} = this.utility.fetchUserDetails();
-    const time = this.datePipe.transform(this.today, "HH:mm");
+    const time = this.datePipe.transform(today, "HH:mm");
     this.isLogoutClicked = true;
     
-    this.apiService.logoutAPI({email, id, time}).subscribe({
-      next: (res:any) => {
-        if(!res.error && res.msg=="Logout Successfully") {
-          localStorage.setItem("crm_user", "{}");
-          location.reload();
+    if(["",undefined,null].includes(id)) {
+      localStorage.setItem("crm_user", "{}");
+      location.reload();
+      this.isLogoutClicked = false;
+    } else {
+      this.apiService.logoutAPI({email, id, time}).subscribe({
+        next: (res:any) => {
+          if(!res.error && res.msg=="Logout Successfully") {
+            localStorage.setItem("crm_user", "{}");
+            location.reload();
+            this.isLogoutClicked = false;
+          }
+        }, error: (err:any) => {
+          console.log(err);
           this.isLogoutClicked = false;
         }
-      }, error: (err:any) => {
-        console.log(err);
-        this.isLogoutClicked = false;
-      }
-    });
+      });
+    }
   }
 
   ngOnDestroy(): void {

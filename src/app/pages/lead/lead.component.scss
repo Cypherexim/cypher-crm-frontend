@@ -39,11 +39,59 @@ div.lead-container{
                 letter-spacing: -0.3px;
                 height: 7.5%;
             }
-            div.total{
-                top: 2.5%;
-                span{
-                    font-size: 17px;
-                    font-weight: 500;
+            
+            div.right-hand-options{
+                top: 2%;
+                div.multi-select{
+                    padding: 0px 10px;
+                    border-radius: 5px;
+                    cursor: context-menu;
+                    box-shadow: 0px 0px 5px 0px #00000070;
+                    &:active{box-shadow: none;}
+    
+                    div.indicator{
+                        padding: 5px;
+                        border-radius: 50%;
+                        background-color: #ef4444;
+                        margin-right: 5px;
+                    }
+                    div.indicator.active{background-color: #20c997;}
+                    span{
+                        font-size: 15px;
+                        font-weight: 400;
+                        padding: 3px 0;
+                    }
+                    div.side-icon{
+                        display: none;
+                        cursor: pointer;
+                        padding: 3px 0;
+                        padding-left: 7px;
+                        margin-left: 10px;
+                        border-left: 1px solid #c2c2c2;
+                    }
+                    div.side-icon.active{display: block;}
+
+                    div.drop-list{
+                        z-index: 9;
+                        top: 100%;
+                        background-color: inherit;
+                        padding-top: 5px;
+                        margin-top: 5px;
+                        box-shadow: 0px 0px 5px 0px #00000094;
+                        div.list-item{
+                            &:hover{background-color: #d0d0d0;}
+                            cursor: pointer;
+
+                            div.item img{height: 30px;}
+                        }
+                    }
+                }
+    
+                div.total{
+                    span{
+                        font-size: 17px;
+                        font-weight: 500;
+                    }
                 }
             }
             div.table-container{
@@ -163,6 +211,26 @@ div.lead-container{
                 }
             }
         }
+
+        p.list-head{
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 0.7px;
+        }
+        span.close{top: 10px;right: 10px;}
+        ul li{
+            text-transform: uppercase;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            div{
+                background-color: #d63384;
+                color: white;
+                padding: 3px 20px;
+                border-radius: 35px;
+                width: fit-content;
+            }
+        }
     }
 
     p-dialog#dialog4{
@@ -179,3 +247,4 @@ div.lead-container{
     }
 }
 
+.multi-check{scale: 0.85;accent-color: red;}

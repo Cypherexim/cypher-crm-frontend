@@ -54,3 +54,13 @@ truncate crm_rejectleads;
 truncate crm_statusleads;
 truncate crm_invoiceleads;
 truncate "crm_masterLeads";
+
+
+
+
+        // const filteredCsvRecords = csvRecords.filter((item:any) => !this.existingEmails.includes(item["email"]));
+
+        // if(filteredCsvRecords.length==0) {
+        //   this.utility.showToastMsg("error", "Exist Email", "All emails are already exist!");
+        //   return;
+        // }

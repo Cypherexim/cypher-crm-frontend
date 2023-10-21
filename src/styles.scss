@@ -113,7 +113,8 @@ p-dialog#dialog1,
 p-dialog#dialog2,
 p-dialog#dialog3,
 p-dialog#dialog4,
-p-dialog#dialog5{
+p-dialog#dialog5,
+p-dialog#dialog6{
     .p-dialog .p-dialog-header{
         width: 100%;
         z-index: 999;
@@ -122,6 +123,7 @@ p-dialog#dialog5{
     }
     .p-dialog .p-dialog-content{padding-bottom: 0;}
 }
+p-dialog#dialog6 .p-dialog-header{display: none !important;}
 
 //*******************error**************
 div.error{

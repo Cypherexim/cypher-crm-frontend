@@ -159,6 +159,10 @@ export class ApiService {
     return this.http.post(`${environment.apiurl}/lead/updatePriceLead`, body);
   }
 
+  updateOpenLeadUserAPI(body:any) {
+    return this.http.post(`${environment.apiurl}/lead/updateOpenLeadUser`, body);
+  }
+
   getCompaniesListAPI() {
     return this.http.get(`${environment.apiurl}/getAllCompanies`);
   }
@@ -183,4 +187,7 @@ export class ApiService {
     return this.http.post(`${environment.apiurl}/user/sendTaxInvoiceEmail`, apiObj);
   }
 
+  updateInvoideLeadAPI(body:any) {
+    return this.http.post(`${environment.apiurl}/lead/updateInvoideLead`, body);
+  }
 }

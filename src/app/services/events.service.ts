@@ -13,4 +13,5 @@ export class EventsService {
   onPassPrintCommand:Subject<boolean> = new BehaviorSubject<boolean>(false);
   userLoginEvent:Subject<boolean> = new Subject<boolean>();
   passPdfData:Subject<any> = new BehaviorSubject<any>({});
+  excelExistLeadEmit:Subject<any> = new BehaviorSubject<any>({});
 }

@@ -47,7 +47,8 @@ export class LoginComponent implements OnInit{
         if(!res.error) {
           this.loginBtn = 'login';
           this.router.navigate(["/home"]);
-          localStorage.setItem("crm_user", JSON.stringify(res.result[0]));
+          const jsonObj = {loginDate: today, ...(res.result[0])};
+          localStorage.setItem("crm_user", JSON.stringify(jsonObj));
           this.followupLeadsDeadLineCheckup(); //checks if followup leads are for today
           setTimeout(() => this.eventService.userLoginEvent.next(true), 100);
         } else alert(res.msg);

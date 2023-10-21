@@ -37,6 +37,7 @@ export class LeadComponent implements OnInit, OnDestroy {
   eventSubscription1:Subscription = new Subscription();
   eventSubscription2:Subscription = new Subscription();
   eventSubscription3:Subscription = new Subscription();
+  eventSubscription4:Subscription = new Subscription();
   eventSubscription:any;
 
   
@@ -51,13 +52,23 @@ export class LeadComponent implements OnInit, OnDestroy {
   tdModalType:string = "last_followup";
   tableHeadCheckBox:string[] = ["email", "company_name", "contact"];
   copyItems:any = {};
+
+  isUserAllowedToAssign:boolean = this.utility.fetchUserSingleDetail("has_assignment");
+  isAssignToActive:boolean = false;
+  showAssignee:boolean = false;
+  isSelectedAll:boolean = false;
+  assignedLeadsArr:any[] = [];
+  assignedUserId:any = "";
   
   leadList:any[] = [];
   copyLeadList:any[] = [];
+  assigneeList:any[] = [];
 
   visibleDialogue:boolean = false;
   visibleDialogue2:boolean = false;
   visibleDialogue3:boolean = false;
+  visibleDialogue4:boolean = false;
+  alreadyExistCompanies:any[] = [];
   followUpHistory:any[] = [];
 
   singleItemData:any = {};
@@ -91,7 +102,7 @@ export class LeadComponent implements OnInit, OnDestroy {
   //   } else {this.copyLeadList = copyTempData.splice(0, this.rows); this.first=0;}
   // }
 
-  urlDetectionEvent() {
+  urlDetectionEvent(isFirstTime=false) {
     this.eventSubscription1 = this.router.events.subscribe((res:any) => {
       if(res instanceof NavigationEnd) { 
         this.currentStage = this.route.snapshot.paramMap.get("stage") || "";
@@ -104,9 +115,13 @@ export class LeadComponent implements OnInit, OnDestroy {
         this.refreshPage();
       }
     }); 
+
+    this.currentStage = this.route.snapshot.paramMap.get("stage") || "";
+    this.refreshPage();
   }
 
   ngOnInit(): void {
+    this.showOnExcelExistLeads(); //for getting list of leads while after importing csv file
     const today = new Date();
     this.eventSubscription2 = this.eventService.onCompleteInsertion.subscribe({
       next: (res:any) => {
@@ -129,6 +144,19 @@ export class LeadComponent implements OnInit, OnDestroy {
     this.apiSubscription3.unsubscribe();
     this.apiSubscription4.unsubscribe();
     window.matchMedia('print').removeEventListener("change", this.eventSubscription);
+  }
+
+  getAllUser() {
+    const userId = this.utility.fetchUserSingleDetail("id");
+    this.apiService.getAllUsersAPI(userId).subscribe({
+      next: (res: any) => {
+        if (!res.error) {
+          (res?.result).map((item: any) => { if (item.id == userId) item.name = "self"; });
+          this.assigneeList = res?.result;
+          this.assigneeList.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
+        }
+      }, error: (err: any) => { console.log(err); }
+    });
   }
 
   onClickPrint() {
@@ -171,7 +199,7 @@ export class LeadComponent implements OnInit, OnDestroy {
       "status": this.apiService.getAllStatusLeadsAPI(userId),
       "invoice": this.apiService.getAllInvoiceLeadsAPI(userId),
       "tax": this.apiService.getAllTaxInvoiceLeadsAPI(userId)
-    }
+    };
 
     if(!leadTypeAPI.hasOwnProperty(stageType)) return;
 
@@ -183,6 +211,7 @@ export class LeadComponent implements OnInit, OnDestroy {
         this.isApiInProcess = false;
         
         if(stageType=="open") {
+          this.getAllUser();
           const emailList:any[] = [];
           this.leadList.forEach((item:any, index:number) => {
             emailList.push(item["email"]);
@@ -249,7 +278,7 @@ export class LeadComponent implements OnInit, OnDestroy {
         const flags = ["insert", "update", "delete"].filter((item:string) => response.includes(item));
         if(flags.length>0) this.refreshPage();
       } else { 
-        this.updateInvoiceTracker("order_num"); 
+        this.updateInvoiceTracker("order_num");
         this.refreshPage();
       }
       eventRef.unsubscribe();
@@ -460,8 +489,78 @@ export class LeadComponent implements OnInit, OnDestroy {
     else if(this.currentStage=="invoice") return infoModalProformaKeyVal[key];
     else if(this.currentStage=="tax") return infoModalTaxKeyVal[key];
   }
-  getInfoValues(value:string|any) {
+  getInfoValues(key:string, value:string|any) {
     if(["",null,undefined," ","~"].includes(value)) return "N/A";
-    else return value;
+    else {
+      if(key=="transaction_time") return this.datepipe.transform(value, "dd/MM/YYYY hh:mm:ss a");
+      else if(["email","contact"].includes(key)) return value.split(",");
+      else return value;
+    }
+  }
+
+  onClickAssign() {
+    this.isAssignToActive = !this.isAssignToActive;
+    this.showAssignee = false;
+  }
+  selectAllCheck(e:any) {
+    const isChecked = e.target.checked;
+    this.assignedLeadsArr = [];
+
+    if(isChecked) {
+      this.isSelectedAll = true;
+      this.copyLeadList.forEach(item => this.assignedLeadsArr.push(item["id"]));
+    } else this.isSelectedAll = false;
+  }
+  onSelectSingleLead(e:any, id:any) {
+    const isChecked = e.target.checked;
+    if(isChecked) this.assignedLeadsArr.push(id);
+    else {
+      const idIndex = this.assignedLeadsArr.indexOf(id);
+      this.assignedLeadsArr.splice(idIndex, 1);
+    }
+  }
+
+  onAssignItem(user:any) {
+    if(this.assignedLeadsArr.length==0) {
+      this.showAssignee = false;
+      this.assignedUserId = "";
+      this.utility.showToastMsg("error", "ERROR", "Please seleact atleast one lead before assign");
+      return;
+    }
+
+    this.assignedUserId = user?.id;
+    const apiBody = {
+      existingUser: this.utility.fetchUserSingleDetail("id"), 
+      assignedUser: this.assignedUserId, 
+      selectedLeads: this.assignedLeadsArr
+    };
+
+    this.apiService.updateOpenLeadUserAPI(apiBody).subscribe({
+      next: (res:any) => {
+        if(!res?.error) {
+          this.assignedUserId = "";
+          this.assignedLeadsArr = [];
+          this.isSelectedAll = false;
+          this.isAssignToActive = false;
+          this.showAssignee = false;
+          this.utility.showToastMsg("success", "SUCCESS", `Selected Leads have been moved to ${(user?.name).toUpperCase()} account`);
+          this.refreshPage();
+        }
+      }, error: (err:any) => console.log(err)
+    });
+  }
+
+
+  showOnExcelExistLeads() {
+    this.eventSubscription4 = this.eventService.excelExistLeadEmit.subscribe({
+      next: (res:any) => {
+        console.log(res)
+        if(res?.hasEmails) {
+          this.visibleDialogue4 = true;
+          this.alreadyExistCompanies = res?.existLeads;
+        }
+      }, error: (err:any) => console.log(err)
+    });
   }
 }
+

@@ -135,7 +135,7 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
   }
 
   onBindUserData(userData:any) {
-    const {address, gst_num, email, company_name, name, performa_num, leadid, plan_price, contact, id, assigned_id} = userData;
+    const {address, gst_num, email, company_name, name, performa_num, leadid, plan_price, contact, id, assigned_id, duration, report_type, payment_status } = userData;
     this.doesUserBelongToDelhi = (address.toLowerCase()).includes("delhi");
     this.address.billing.line1 = address;
     this.leadId = leadid;
@@ -150,6 +150,9 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
     this.tableData.rate = plan_price;
     this.issuedBy = assigned_id;
     this.onlyId = id;
+    this.selectedReport = report_type;
+    this.tableData.duration = duration;
+    this.paymentStatus = payment_status;
 
     this.doesUserBelongToDelhi = this.gstNum.substring(0, 2)=="07";
     this.onCalculateTax();
@@ -282,7 +285,7 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
   }
   onSerchCompany() {
     const strLen = this.keyUpCompanyStr.length;
-    this.copyCompaniesList = this.companiesList.filter((item:any) => (item["company_name"]).substr(0, strLen).toLowerCase() == this.keyUpCompanyStr.toLowerCase());
+    this.copyCompaniesList = this.companiesList.filter((item:any) => (item["company_name"]).substr(0, strLen).toLowerCase() == this.keyUpCompanyStr.trim().toLowerCase());
   }
 
   getSingleCompanyDetail() {
@@ -389,6 +392,7 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
   onClickPrint() {
     this.isApiInProcess = true;
     const pdfData = this.setAllRequiredValues();
+    console.log(pdfData)
     this.eventService.passPdfData.next(pdfData);
     setTimeout(() => {
       this.isApiInProcess = false;
@@ -405,6 +409,28 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
     this.taxNum = `${suffixPiNum}EPL${this.taxNum}`;
   }
 
+  onUpdateInvoice() {
+    this.isApiInProcess = true;
+    const apiBody = {
+      id: this.onlyId,
+      rate: this.tableData.rate,
+      reportType: this.selectedReport, 
+      duration: this.tableData.duration,
+      paymentStatus: this.paymentStatus
+    };
+
+    this.apiSubscription1 = this.apiService.updateInvoideLeadAPI(apiBody).subscribe({
+      next: (res:any) => {
+        if(!res?.error) {
+          this.isApiInProcess = false;
+          this.onDismissModal();
+          this.callback.emit(true);
+          this.utility.showToastMsg("success", "SUCCESS", "Invoice updated successfully!");
+        } else this.utility.showToastMsg("error", "ERROR", res?.msg);
+      }, error: (err:any) => console.log(err)
+    });
+  }
+
 
   onClickNewAdd() {
     this.isApiInProcess = true;
@@ -415,10 +441,11 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
       assignedFrom: this.utility.fetchUserSingleDetail("id"), 
       plan_price: this.tableData.rate, 
       performa_num: this.orderNum,
-      lastFollow: "",  nextFollow: "", remark: "", 
-      leadTracker: "", followupTracker: "", plan_name: ""
-    }
-    console.log(bodyObj);
+      assigningFrom: "addPI",
+      reportType: this.selectedReport, 
+      duration: this.tableData.duration
+    };
+    
     this.apiSubscription1 = this.apiService.addInvoiceLeadAPI(bodyObj).subscribe({
       next: (res:any) => {
         if(!res?.error) {
@@ -426,7 +453,7 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
           this.onDismissModal();
           this.utility.showToastMsg("success", "SUCCESS", "PI successfully added!");
           this.callback.emit(true);
-        }
+        } else this.utility.showToastMsg("error", "ERROR", res?.msg);
       }, error: (err:any) => console.log(err)
     })
   }

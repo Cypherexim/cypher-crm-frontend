@@ -82,7 +82,8 @@
                             <td>{{tableData.qty}}</td>
                             <td>{{tableData.unit}}</td>
                             <td>{{convertNumToString(tableData.rate)}}</td>
-                            <td>{{convertNumToString(tableData.taxable)}}</td>
+                            <!-- <td>{{convertNumToString(tableData.taxable)}}</td> -->
+                            <td>{{convertNumToString(tableData.rate)}}</td>
                             <td *ngIf="doesUserBelongToDelhi">{{convertNumToString(tableData.gst.cgst, false)}}%</td>
                             <td *ngIf="doesUserBelongToDelhi">{{convertNumToString(tableData.gst.sgst, false)}}%</td>
                             <td *ngIf="!doesUserBelongToDelhi">{{convertNumToString(tableData.gst.igst, false)}}%</td>
@@ -168,7 +169,8 @@
         <div class="submit-btn w-full text-right absolute bg-white bottom-0">
             <button *ngIf="!isAddingNewPI" title="Print Tax Invoice" pButton pRipple label="Print" class="p-button-danger mr-2" (click)="onClickPrint()"></button>
             <button title="Send Tax Invoice" pButton pRipple label="Email" class="p-button-primary mr-2" (click)="onSendEmail()" *ngIf="currentStage=='tax'"></button>
-            <button title="Create new tax invoice" *ngIf="!isAddingNewPI" pButton pRipple label="{{currentStage=='tax'?'Update':'Submit'}}" class="p-button-success mr-2" (click)="onSubmit()"></button>
+            <button title="Create new tax invoice" *ngIf="!isAddingNewPI && currentStage=='invoice'" pButton pRipple label="Update" class="p-button-success mr-2" (click)="onUpdateInvoice()"></button>
+            <button title="Create new tax invoice" *ngIf="!isAddingNewPI" pButton pRipple label="{{currentStage=='tax'?'Update':'Create Tax'}}" class="p-button-primary mr-2" (click)="onSubmit()"></button>
             <button title="Create new PI" *ngIf="isAddingNewPI" pButton pRipple label="Submit" class="p-button-success mr-2" (click)="onClickNewAdd()"></button>
             <button pButton pRipple label="Cancel" class="p-button-secondary" (click)="onDismissModal()"></button>
         </div>
@@ -262,7 +264,7 @@
         </section>
     
         <section class="second mb-3" *ngIf="editFormType=='table'">
-            <select [(ngModel)]="selectedReport" class="mb-5" [disabled]="isAddingNewPI">
+            <select [(ngModel)]="selectedReport" class="mb-5">
                 <option value="">-- Select Report Type --</option>
                 <option value="{{item}}" *ngFor="let item of reportType">{{item}}</option>
             </select>
@@ -270,7 +272,7 @@
             <div class="input-box">
                 <div class="input-fields mb-4">
                     <span>Duration</span>
-                    <input type="text" [(ngModel)]="tableData.duration" [disabled]="isAddingNewPI">
+                    <input type="text" [(ngModel)]="tableData.duration">
                 </div>
                 <div class="input-fields mb-4">
                     <span>HSN/SAC</span>
