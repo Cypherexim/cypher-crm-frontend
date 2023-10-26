@@ -190,4 +190,12 @@ export class ApiService {
   updateInvoideLeadAPI(body:any) {
     return this.http.post(`${environment.apiurl}/lead/updateInvoideLead`, body);
   }
+  
+  updateStatusRemarkAPI(body:any) {
+    return this.http.post(`${environment.apiurl}/lead/updateStatusRemark`, body);
+  }
+
+  getUserAttendanceAPI(body:any) {
+    return this.http.post(`${environment.apiurl}/user/getUserAttendance`, body);
+  }
 }

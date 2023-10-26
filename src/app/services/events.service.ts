@@ -14,4 +14,5 @@ export class EventsService {
   userLoginEvent:Subject<boolean> = new Subject<boolean>();
   passPdfData:Subject<any> = new BehaviorSubject<any>({});
   excelExistLeadEmit:Subject<any> = new BehaviorSubject<any>({});
+  allUserDataEmit:Subject<any> = new BehaviorSubject<any>([]);
 }

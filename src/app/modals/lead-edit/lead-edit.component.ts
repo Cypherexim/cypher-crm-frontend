@@ -5,6 +5,7 @@ import { Observable, Subscription } from 'rxjs';
 import { CSVModel } from 'src/app/models/excelModel';
 import { LeadModel } from 'src/app/models/leadModel';
 import { ApiService } from 'src/app/services/api.service';
+import { EventsService } from 'src/app/services/events.service';
 import { UtilitiesService } from 'src/app/services/utilities.service';
 
 @Component({
@@ -18,7 +19,8 @@ export class LeadEditComponent implements OnDestroy, OnInit {
     private utility: UtilitiesService,
     private datepipe: DatePipe,
     private titlecasepipe: TitleCasePipe,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private eventService: EventsService
   ) { }
 
   @Output() callback: EventEmitter<any> = new EventEmitter<any>();
@@ -26,6 +28,7 @@ export class LeadEditComponent implements OnDestroy, OnInit {
   apiSubscription2: Subscription = new Subscription();
   apiSubscription3: Subscription = new Subscription();
   apiSubscription4: Subscription = new Subscription();
+  eventSubscription: Subscription = new Subscription();
 
   isNotEditMode: boolean = true;
   tableHeads: string[] = [];
@@ -78,15 +81,9 @@ export class LeadEditComponent implements OnDestroy, OnInit {
   }
 
   getAllUser() {
-    const userId = this.utility.fetchUserSingleDetail("id");
-    this.apiService.getAllUsersAPI(userId).subscribe({
-      next: (res: any) => {
-        if (!res.error) {
-          (res?.result).map((item: any) => { if (item.id == userId) item.name = "self"; });
-          this.assigneeList = res?.result;
-          this.assigneeList.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
-        }
-      }, error: (err: any) => { console.log(err); }
+    this.eventSubscription = this.eventService.allUserDataEmit.subscribe({
+      next: (res:any) => this.assigneeList = res,
+      error: (err:any) => console.log(err)
     });
   }
 
@@ -286,7 +283,7 @@ export class LeadEditComponent implements OnDestroy, OnInit {
     this.excelModelVal = this.utility.setValuesForOpenLead(this.excelModelVal, this.leadData, "leadEdit-open");
     this.excelModelVal.remark = this.updatedRemark;
 
-    this.apiSubscription2 = this.apiService.addSingleOpenLeadAPI(this.excelModelVal).subscribe({
+    this.apiSubscription2 = this.apiService.revertToOpenLeadAPI(this.excelModelVal).subscribe({
       next: (res: any) => {
         if (!res.error) {
           this.deleteAnyTypeLead();
@@ -369,6 +366,7 @@ export class LeadEditComponent implements OnDestroy, OnInit {
       next: (res: any) => {
         if (!res.error) {
           this.isSubmitClicked = false;
+          this.updateStatusRemark(); //to update status lead remark for those who have assinged to others
           if(this.currentLeadPage=="open") this.removeHightlightedLead(this.excelModelVal.leadId);
           this.callback.emit({ msg: res?.msg, isMsg: true });
           this.onDismissModal();
@@ -531,6 +529,21 @@ export class LeadEditComponent implements OnDestroy, OnInit {
     }
   }
   
+
+  updateStatusRemark() {
+    const apiBody = {
+      leadId: this.excelModelVal.leadId, 
+      remark: this.updatedRemark,
+      email: this.excelModelVal.email, 
+      status: this.currentLeadStatus
+    };
+    
+    this.apiService.updateStatusRemarkAPI(apiBody).subscribe({
+      next: (res:any) => {
+        if(!res.error) console.log(res.msg);
+      }, error: (err:any) => console.log(err)
+    });
+  }
 }
 
 

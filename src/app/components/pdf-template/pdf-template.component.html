@@ -45,7 +45,7 @@
                     </td>
                     <td>
                         <div class="plno" style="font-size: 12px;letter-spacing: 0.5px;width: fit-content;float: right;">
-                            <div><span style="font-weight: bold;margin-right:5px;" *ngIf="!isProformaInvoice">Invoice No.:</span>{{invoiceData?.taxNum}}</div>
+                            <div *ngIf="!isProformaInvoice"><span style="font-weight: bold;margin-right:5px;">Invoice No.:</span>{{invoiceData?.taxNum}}</div>
                             <div><span style="font-weight: bold;margin-right:5px;">{{isProformaInvoice?'PI No':'Order No'}}.:</span>{{invoiceData?.performaNum}}</div>
                             <div><span style="font-weight: bold;margin-right:5px;">Date:</span>{{invoiceData?.invoiceDate | date:'d MMM, y'}}</div>
                             <!-- <div><span style="font-weight: bold;margin-right:5px;">Valid till:</span>{{issueDate}}</div> -->

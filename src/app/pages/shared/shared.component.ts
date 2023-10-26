@@ -1,5 +1,6 @@
 import {  Component } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { ApiService } from 'src/app/services/api.service';
 import { EventsService } from 'src/app/services/events.service';
 import { UtilitiesService } from 'src/app/services/utilities.service';
 
@@ -11,14 +12,17 @@ import { UtilitiesService } from 'src/app/services/utilities.service';
 export class SharedComponent {
   constructor(
     private eventService: EventsService,
-    private utility: UtilitiesService
+    private utility: UtilitiesService,
+    private apiService: ApiService
   ) {
+    this.getAllUser();
     this.onPrintCommand();
     this.onPassingPdfData();
   }
 
   onClickPrint:boolean = false;
   pdfDocData:any = {};
+  isToggleClicked:boolean = false;
   isUserFromDelhi:boolean = false;
   isProformaInvoice:boolean = false;
   eventSubscription1:Subscription = new Subscription();
@@ -44,6 +48,24 @@ export class SharedComponent {
           this.pdfDocData = res;
         }
       }, error: (err:any) => console.log(err)
+    });
+  }
+
+  onClickToggle() {
+    this.isToggleClicked = !this.isToggleClicked;
+  }
+
+  getAllUser() {
+    const userId = this.utility.fetchUserSingleDetail("id");
+    this.apiService.getAllUsersAPI(userId).subscribe({
+      next: (res: any) => {
+        if (!res.error) {
+          // (res?.result).map((item: any) => { if (item.id == userId) item.name = "self"; });
+          const usersList = res?.result;
+          usersList.sort((a:any, b:any) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
+          this.eventService.allUserDataEmit.next(usersList);
+        }
+      }, error: (err: any) => { console.log(err); }
     });
   }
 }

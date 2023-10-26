@@ -113,7 +113,7 @@ export class UtilitiesService {
     leadModel.pan = followupLeads["pan_num"];
     leadModel.iec = followupLeads["iec_num"];
     leadModel.remark = followupLeads["remarks"];
-    leadModel.assignedFrom = followupLeads["assigned_from"];
+    leadModel.assignedFrom = followupLeads["assigned_from_id"];
     leadModel.currentStage = "open";
     leadModel.leadTracker = followupLeads["lead_tracker"];
     leadModel.followupTracker = followupLeads["followup_tracker"];

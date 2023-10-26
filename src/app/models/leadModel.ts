@@ -57,31 +57,33 @@ export class LeadModel {
         demoLeadKey: [
             { label: "Last Followup", key: "last_followup" },
             { label: "Next Followup", key: "next_followup" },
-            { label: "demo time", key: "demo_time" },
-            { label: "assigned from", key: "assigned_from" },
+            { label: "Demo time", key: "demo_time" },
+            { label: "Assigned from", key: "assigned_from" },
             ...this.commonKeys
         ],
         priceLeadKey: [
             { label: "Last Followup", key: "last_followup" },
             { label: "Next Followup", key: "next_followup" },
-            { label: "assigned from", key: "assigned_from" },
+            { label: "Assigned from", key: "assigned_from" },
             ...this.commonKeys,
         ],
         invoiceLeadKey: [
             { label: "Order No.", key: "performa_num" },
-            { label: "assigned from", key: "assigned_from" },
+            { label: "Assigned from", key: "assigned_from" },
             ...this.commonKeys
         ],
         statusLeadKey: [ //using as defaul angular excel modal keys
-            { label: "company", key: "company" },
-            { label: "username", key: "username" },
-            { label: "email", key: "email" },
-            { label: "contact", key: "contact" },
-            { label: "location", key: "location" },
+            { label: "Status", key: "status" },
+            { label: "Owned By", key: "owned_by"},
+            { label: "Remark", key: "updated_remark" },
+            { label: "Company", key: "company" },
+            { label: "Username", key: "username" },
+            { label: "Email", key: "email" },
+            { label: "Contact", key: "contact" },
+            { label: "Location", key: "location" },
             { label: "GST number", key: "gst" },
             { label: "PAN number", key: "pan" },
-            { label: "status", key: "status" },
-            { label: "time", key: "transaction_time" }
+            { label: "Time", key: "transaction_time" }
         ],
         taxLeadKey: [
             { label: "Invoice Date", key: "invoice_date" },

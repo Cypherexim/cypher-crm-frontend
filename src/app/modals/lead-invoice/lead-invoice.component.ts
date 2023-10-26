@@ -28,6 +28,7 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
   apiSubscription4:Subscription = new Subscription();
   apiSubscription5:Subscription = new Subscription();
   apiSubscription6:Subscription = new Subscription();
+  eventSubscription1:Subscription = new Subscription();
   eventSubscription:any;
 
   currentStage:string = "";
@@ -119,6 +120,7 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
     this.apiSubscription4.unsubscribe();
     this.apiSubscription5.unsubscribe();
     this.apiSubscription6.unsubscribe();
+    this.eventSubscription1.unsubscribe();
   }
 
   onDismissModal = () => this.activeModal.dismiss('Cross click');
@@ -259,11 +261,9 @@ export class LeadInvoiceComponent implements OnInit, OnDestroy {
   }
 
   getAllUser() {
-    const userId = this.utility.fetchUserSingleDetail("id");
-    this.apiSubscription2 = this.apiService.getAllUsersAPI(userId).subscribe({
-      next: (res:any) => {
-        if(!res.error) {this.assigneeList = res?.result;}
-      }, error: (err:any) => {console.log(err);}
+    this.eventSubscription1 = this.eventService.allUserDataEmit.subscribe({
+      next: (res:any) => this.assigneeList = res,
+      error: (err:any) => console.log(err)
     });
   }
 

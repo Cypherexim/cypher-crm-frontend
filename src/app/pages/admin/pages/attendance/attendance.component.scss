@@ -1,0 +1,79 @@
+div.attendance-container{
+    div.header-box{
+        padding-left: 3%;
+        height: 7%;
+        background-color: #fafafa;
+        div.user-list{
+            i{font-size: 15px;font-weight: 800;}
+            select{
+                outline: none;
+                padding: 4px 25px;
+                font-size: 15px;
+                border: 1px solid #c2c2c2;
+                border-radius: 5px;
+                color: #495057;
+                &:hover{border-color: #3B82F6;}
+                &:focus{
+                    outline: 0 none;
+                    outline-offset: 0;
+                    box-shadow: 0 0 0 0.2rem #BFDBFE;
+                    border-color: #3B82F6;
+                }
+            }
+        }
+        div.date-box{
+            div.from, div.to{
+                label{
+                    font-size: 15px;
+                    font-weight: 500;
+                }
+                input{
+                    padding: 4px 10px;
+                    font-size: 15px;
+                }
+            }
+        }
+        button{
+            padding: 5px 15px;
+            letter-spacing: 0.5px;
+            font-size: 15px;
+        }
+    }
+
+    div.grid-box{
+        height: 92%;
+        h3{
+            font-weight: 500;
+            font-size: 30px;
+            padding: 10px 0;
+        }
+
+        div.table-box{
+            overflow: auto;
+            height: 92%;
+            table{
+                border-collapse: collapse;
+                thead{
+                    th{
+                        background-color: var(--official-color);
+                        text-align: center;
+                        padding: 5px 3px;
+                        color: white;
+                    }
+                }
+                tbody{
+                    tr{
+                        td{
+                            text-align: center;
+                            padding: 5px 3px;
+                            font-weight: 400;
+                            border: 1px solid #c2c2c2;
+                            font-size: 14.5px;
+                            color: black;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -38,6 +38,7 @@ export class LeadComponent implements OnInit, OnDestroy {
   eventSubscription2:Subscription = new Subscription();
   eventSubscription3:Subscription = new Subscription();
   eventSubscription4:Subscription = new Subscription();
+  eventSubscription5:Subscription = new Subscription();
   eventSubscription:any;
 
   
@@ -121,6 +122,7 @@ export class LeadComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.getAllUser();
     this.showOnExcelExistLeads(); //for getting list of leads while after importing csv file
     const today = new Date();
     this.eventSubscription2 = this.eventService.onCompleteInsertion.subscribe({
@@ -139,6 +141,8 @@ export class LeadComponent implements OnInit, OnDestroy {
     this.eventSubscription1.unsubscribe();
     this.eventSubscription2.unsubscribe();
     this.eventSubscription3.unsubscribe();
+    this.eventSubscription4.unsubscribe();
+    this.eventSubscription5.unsubscribe();
     this.apiSubscription1.unsubscribe();
     this.apiSubscription2.unsubscribe();
     this.apiSubscription3.unsubscribe();
@@ -147,15 +151,9 @@ export class LeadComponent implements OnInit, OnDestroy {
   }
 
   getAllUser() {
-    const userId = this.utility.fetchUserSingleDetail("id");
-    this.apiService.getAllUsersAPI(userId).subscribe({
-      next: (res: any) => {
-        if (!res.error) {
-          (res?.result).map((item: any) => { if (item.id == userId) item.name = "self"; });
-          this.assigneeList = res?.result;
-          this.assigneeList.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
-        }
-      }, error: (err: any) => { console.log(err); }
+    this.eventSubscription5 = this.eventService.allUserDataEmit.subscribe({
+      next: (res:any) => this.assigneeList = res,
+      error: (err:any) => console.log(err)
     });
   }
 
@@ -211,28 +209,34 @@ export class LeadComponent implements OnInit, OnDestroy {
         this.isApiInProcess = false;
         
         if(stageType=="open") {
-          this.getAllUser();
+          // this.getAllUser();
           const emailList:any[] = [];
           this.leadList.forEach((item:any, index:number) => {
             emailList.push(item["email"]);
             if(index==this.leadList.length-1) this.eventService.passExistingEmails.next(emailList);
           });          
-        } else if(stageType=="status") this.loopOutJsonLeads(res?.result, "status");
+        } else if(stageType=="status") {
+          this.loopOutJsonLeads(res?.result);
+        }
         // else if(stageType=="tax") this.loopOutJsonLeads(res?.result, "tax");
-      },
-      error: (err:any) => {console.log(err);}
+      }, error: (err:any) => {console.log(err);}
     });
   }
 
-  loopOutJsonLeads(dataList:any[], stageType:string) {
+  loopOutJsonLeads(dataList:any[]) {
     this.leadList = [];
     this.copyLeadList = [];
+
     for(let i=0; i<dataList.length; i++) {
       const leadData = dataList[i]["lead_data"];
       const parsedJSON = JSON.parse(leadData);
+      if(this.assigneeList.length>0) {
+        parsedJSON["owned_by"] = this.assigneeList.filter(item => dataList[i]["assigners"].at(-1)==item?.id)[0]["name"];
+      }
       this.leadList.push({...dataList[i], ...parsedJSON});
     }
     this.copyLeadList = JSON.parse(JSON.stringify(this.leadList));
+    
     // this.paginateTableData();
   }
 
@@ -253,7 +257,7 @@ export class LeadComponent implements OnInit, OnDestroy {
       if(["email", "contact"].includes(key)) return this.toTitleCase(this.titlecasepipe.transform(modifiedStr.split(",")[0]));
       return this.titlecasepipe.transform(modifiedStr);
     } 
-    else if(key == "remarks") return this.ellipsespipe.transform(data[key], 35);
+    else if(["remarks","updated_remark"].includes(key)) return this.ellipsespipe.transform(data[key], 35);
     else if(key == "assigned_from") return this.toTitleCase(this.utility.fetchUserSingleDetail("id")==data["assigned_from_id"] ? "self" : data[key]);
     else return data[key]=="N/A" ? data[key] : this.titlecasepipe.transform(`${data[key]}`);
   }
@@ -490,7 +494,7 @@ export class LeadComponent implements OnInit, OnDestroy {
     else if(this.currentStage=="tax") return infoModalTaxKeyVal[key];
   }
   getInfoValues(key:string, value:string|any) {
-    if(["",null,undefined," ","~"].includes(value)) return "N/A";
+    if(["",null,undefined," ","~"].includes(value)) return ["email","contact"].includes(key) ? []: "N/A";
     else {
       if(key=="transaction_time") return this.datepipe.transform(value, "dd/MM/YYYY hh:mm:ss a");
       else if(["email","contact"].includes(key)) return value.split(",");
@@ -561,6 +565,14 @@ export class LeadComponent implements OnInit, OnDestroy {
         }
       }, error: (err:any) => console.log(err)
     });
+  }
+
+  getStatusColor(status:string):string {
+    if(status == "demo") return "primary";
+    else if(status == "price") return "orange";
+    else if(status == "performa invoice") return "pink";
+    else if(status == "process") return "green";
+    else return "black";
   }
 }
 

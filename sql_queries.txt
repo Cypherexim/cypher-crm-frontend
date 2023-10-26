@@ -64,3 +64,18 @@ truncate "crm_masterLeads";
         //   this.utility.showToastMsg("error", "Exist Email", "All emails are already exist!");
         //   return;
         // }
+
+
+
+
+		
+    // const userId = this.utility.fetchUserSingleDetail("id");
+    // this.apiService.getAllUsersAPI(userId).subscribe({
+    //   next: (res: any) => {
+    //     if (!res.error) {
+    //       (res?.result).map((item: any) => { if (item.id == userId) item.name = "self"; });
+    //       this.assigneeList = res?.result;
+    //       this.assigneeList.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
+    //     }
+    //   }, error: (err: any) => { console.log(err); }
+    // });

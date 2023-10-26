@@ -51,7 +51,7 @@
                         <th *ngFor="let item of tableHeads" class="text-center">
                             <div class="title-name w-full flex align-items-center">
                                 <span *ngIf="tableHeadCheckBox.includes(item.key)"><i (click)="copyToClipboard(item.key)" title="Copy selected items" class="pi pi-copy"></i></span>
-                                <span class="w-full">{{item.label | titlecase}}</span>
+                                <span class="w-full">{{item.label}}</span>
                             </div>
                         </th>
                         <th class="sticky right-0 text-center" *ngIf="!conditionalStages.includes(currentStage)">{{currentStage=='reject'? 'Restore': (currentStage=='invoice' || currentStage=='tax')? 'Actions': 'Edit'}}</th>
@@ -61,14 +61,15 @@
                             <td *ngIf="['invoice','tax','status'].includes(currentStage)" class="sticky left-0"><i class="fa-solid fa-circle-info" (click)="onClickInfoIcon(item)"></i></td>
                             <td *ngIf="isAssignToActive" class="px-2"><input class="multi-check" type="checkbox" [checked]="isSelectedAll" (click)="onSelectSingleLead($event, item['id'])" /></td>
                             <td class="{{isHighlighted(item)}}">{{(i+1)}}</td>
-                            <td class="{{isHighlighted(item)}} text-start" [pTooltip]="['remarks'].includes(item2.key)?item[item2.key]:''" tooltipPosition="bottom" *ngFor="let item2 of tableHeads">
+                            <td class="{{isHighlighted(item)}} text-start" [pTooltip]="['remarks','updated_remark'].includes(item2.key)?item[item2.key]:''" tooltipPosition="bottom" *ngFor="let item2 of tableHeads">
                                 <!-- {{isFollowedUp(item)}} -->
                                 <div class="flex align-items-center">
                                     <span class="checked" *ngIf="tableHeadCheckBox.includes(item2.key)"><input class="checkbox-{{item2.key}}" type="checkbox" (click)="onSelectSingleItem($event, item[item2.key], item2.key)"></span>
                                     <i *ngIf="['contact','email'].includes(item2.key)" [style]="{'visibility': checkInfoAvailability(item[item2.key])?'visible':'hidden'}" class="pi pi-info-circle" (click)="showDialog(item[item2.key], item2.key)"></i>
                                     <!-- errorTypes.includes(item?.followup_tracker) -->
                                     <i *ngIf="item2.key=='last_followup'" [style]="{'visibility': doesFollowupExist(item?.followup_tracker)?'visible':'hidden'}" class="pi pi-info-circle" (click)="showDialog(item?.followup_tracker, item2.key)"></i>
-                                    {{ setTableValues(item, item2.key) }}
+                                    <div *ngIf="item2.key!='status'" class="regular-val">{{ setTableValues(item, item2.key) }}</div>
+                                    <div *ngIf="item2.key=='status'" class="lead-status w-full font-semibold text-{{getStatusColor(item[item2.key])}}-500">{{ setTableValues(item, item2.key) }}</div>
                                 </div>
                             </td>
                             <td class="{{isHighlighted(item)}} sticky right-0 text-center" *ngIf="!conditionalStages.includes(currentStage)">

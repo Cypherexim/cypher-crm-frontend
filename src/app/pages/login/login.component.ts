@@ -24,6 +24,8 @@ export class LoginComponent implements OnInit{
   loginBody = {username: "", password: ""};
   loginBtn:string = "login";
 
+  shouldPasswordVisible:boolean = false;
+
   apiSubscription1:Subscription = new Subscription();
   apiSubscription2:Subscription = new Subscription();
 
@@ -124,5 +126,9 @@ export class LoginComponent implements OnInit{
       },
       error: (err:any) => {console.log(err);}
     })
+  }
+
+  onPressEnter(e:any) {
+    if(e.key == "Enter") this.onLoginSubmit();
   }
 }

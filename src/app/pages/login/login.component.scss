@@ -8,12 +8,23 @@ div.login-container{
                 letter-spacing: 0.5px;
             }
             div.input-fields{
-                input, button{
-                    font-size: 16.5px;
+                input{font-size: 16.5px;}                
+                input[type="email"], button{                    
                     padding: 10px 30px;
                     border-radius: 40px;
                     outline: none;
                     border: 1px solid #c2c2c2;
+                }
+                div.password{
+                    padding: 10px 30px;
+                    border-radius: 40px;
+                    outline: none;
+                    border: 1px solid #c2c2c2;
+                    i{
+                        font-size: 20px;
+                        color: #6b6b6b;
+                        cursor: pointer;
+                    }
                 }
 
                 button{

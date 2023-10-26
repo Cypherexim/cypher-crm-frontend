@@ -1,1 +1,45 @@
-<p>attendance works!</p>
+<div class="attendance-container w-full h-full">
+    <div class="header-box flex align-items-center w-full">
+        <div class="user-list mr-4">
+            <i class="pi pi-user mr-1"></i>&nbsp;
+            <select [(ngModel)]="apiBody.userId">
+                <option value="">--Select User--</option>
+                <option value="{{item?.id}}" *ngFor="let item of assigneeList">{{item?.name|titlecase}}</option>
+            </select>
+        </div>
+        <div class="date-box flex align-items-center mr-4">
+            <div class="from mr-3">
+                <label for="fromCal" class="mr-1">From:&nbsp;&nbsp;</label>
+                <input [(ngModel)]="apiBody.from" id="fromCal" type="date" pInputText />                
+            </div>
+            <div class="to">
+                <label for="toCal" class="mr-1">To:&nbsp;&nbsp;</label>
+                <input [(ngModel)]="apiBody.to" id="toCal" type="date" pInputText />
+            </div>
+        </div>
+        <button pButton pRipple label="Search" class="p-button-danger" (click)="onSearchUserAttendance()"></button>
+    </div>
+
+    <div class="grid-box w-full">
+        <h3 class="w-full text-center">User Attendance</h3>
+        <div class="table-box w-full">
+            <table class="w-full">
+                <thead>
+                    <th *ngFor="let head of tableHeads;">{{head}}</th>
+                </thead>
+                <tbody>
+                    <tr id="{{item?.id}}" *ngFor="let item of attendanceData;let i=index">
+                        <td>{{i+1}}</td>
+                        <td>{{item?.Date | date:'MM/dd/yyyy'}}</td>
+                        <td>{{item?.name}}</td>
+                        <td>{{item?.email}}</td>
+                        <td>{{item?.login_time}}</td>
+                        <td>{{item?.logout_time}}</td>
+                        <td>{{item?.total_minutes}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+

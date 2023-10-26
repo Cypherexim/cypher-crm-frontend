@@ -4,8 +4,8 @@
 
 export const environment = {
   production: false,
-  // apiurl:'https://apicrm.cypherexim.com/api',
-  apiurl:'http://localhost:8001/api',
+  apiurl:'https://apicrm.cypherexim.com/api',
+  // apiurl:'http://localhost:8001/api',
 };
 
 /*
